@@ -50,10 +50,7 @@ public class BuildWork implements Work {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
 
     private final BuildAssignment assignment;
-
-    // Type as String to make object serialization easier
-    // Currently object serialization seems only used internally for server onto ActiveMQ messages
-    private final String consoleLogCharset;
+    private final Charset consoleLogCharset;
 
     private transient DefaultGoPublisher goPublisher;
     private transient TimeProvider timeProvider;
@@ -64,7 +61,7 @@ public class BuildWork implements Work {
 
     public BuildWork(BuildAssignment assignment, Charset consoleLogCharset) {
         this.assignment = assignment;
-        this.consoleLogCharset = consoleLogCharset == null ? null : consoleLogCharset.name();
+        this.consoleLogCharset = consoleLogCharset;
     }
 
     private void initialize(AgentWorkContext agentWorkContext) {
@@ -74,13 +71,9 @@ public class BuildWork implements Work {
         agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
-        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset());
+        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset);
         this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry(), workingDirectory);
         this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension(), agentWorkContext.getPluginRequestProcessorRegistry());
-    }
-
-    private Charset consoleLogCharset() {
-        return consoleLogCharset == null ? null : Charset.forName(consoleLogCharset);
     }
 
     @Override
@@ -137,7 +130,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        return completeJob(buildJob(environmentVariableContext, consoleLogCharset()), environmentVariableContext);
+        return completeJob(buildJob(environmentVariableContext, consoleLogCharset), environmentVariableContext);
     }
 
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
@@ -230,7 +223,7 @@ public class BuildWork implements Work {
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
 
         agentruntimeInfo.cancel();
-        builders.cancel(environmentVariableContext, consoleLogCharset());
+        builders.cancel(environmentVariableContext, consoleLogCharset);
     }
 
     public BuildAssignment getAssignment() {
