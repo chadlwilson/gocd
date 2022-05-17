@@ -157,7 +157,11 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
     "-DWINDOWS_PRODUCT_VERSION=${project.goVersion}.${project.distVersion}",
   ]
 
-  cmdArgs += ["-V4"] // verbose
+  cmdArgs += [
+    "-V4", // verbose
+    "-INPUTCHARSET", "UTF8",  // switch from default UTF16LE
+    "-OUTPUTCHARSET", "UTF8", // switch from default UTF16LE
+  ]
 
   project.exec { ExecSpec execSpec ->
     commandLine = (["makensis"] + cmdArgs + [project.file("windows/${installerType.baseName}.nsi").path])

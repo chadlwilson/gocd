@@ -1,6 +1,6 @@
 #SetCompress off
 
-Unicode false
+Unicode True
 SetCompressor /SOLID /FINAL lzma
 SetCompress auto
 
