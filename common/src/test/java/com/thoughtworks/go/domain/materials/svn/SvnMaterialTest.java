@@ -24,9 +24,9 @@ import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.JsonValue;
-import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -62,7 +62,7 @@ public class SvnMaterialTest {
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         subversion = mock(Subversion.class);
 
         when(subversion.getUrl()).thenReturn(new UrlArgument(URL));
@@ -102,7 +102,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldLogRepoInfoToConsoleOutWithOutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithOutFolder() {
         final File workingCopy = new File("xyz");
 
         updateMaterial(svnMaterial, revision, workingCopy);
@@ -189,9 +189,9 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldSerializeAndDeserializeCorrectly() throws Exception {
+    void shouldSerializeAndDeserializeCorrectly() {
         final SvnMaterial material1 = MaterialsMother.svnMaterial("url1", "foo");
-        assertThat(SerializationTester.objectSerializeAndDeserialize(material1)).isEqualTo(material1);
+        assertThat(Serialization.roundTrip(material1)).isEqualTo(material1);
     }
 
     @Test

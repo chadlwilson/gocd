@@ -18,12 +18,11 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.util.SerializationTester;
+import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ import static org.hamcrest.Matchers.*;
 
 public class MaterialInstanceTest {
     @Test
-    public void shouldGenerateUniqueFingerprintOnCreation() throws Exception {
+    public void shouldGenerateUniqueFingerprintOnCreation() {
         MaterialInstance one = new HgMaterial("url", null).createMaterialInstance();
         MaterialInstance two = new HgMaterial("otherurl", null).createMaterialInstance();
         assertThat(one.getFingerprint(), not(nullValue()));
@@ -40,11 +39,11 @@ public class MaterialInstanceTest {
     }
 
     @Test
-    public void shouldSerializeAndUnserializeAllAttributes() throws IOException, ClassNotFoundException {
+    public void shouldSerializeAndUnserializeAllAttributes() {
         HgMaterial m = MaterialsMother.hgMaterial("url");
         MaterialInstance materialInstance = m.createMaterialInstance();
         materialInstance.setId(10);
-        MaterialInstance unserializedMaterial = SerializationTester.objectSerializeAndDeserialize(materialInstance);
+        MaterialInstance unserializedMaterial = Serialization.roundTrip(materialInstance);
         assertThat(unserializedMaterial, Matchers.is(materialInstance));
         assertThat(unserializedMaterial.getId(), is(10L));
         assertThat(unserializedMaterial, is(materialInstance));

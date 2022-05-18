@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.thoughtworks.go.util.SerializationTester.objectSerializeAndDeserialize;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultJobPlanTest {
@@ -66,10 +66,9 @@ class DefaultJobPlanTest {
     }
 
     @Test
-    void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
+    void shouldBeAbleToSerializeAndDeserialize() {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
                 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null, null);
-        DefaultJobPlan clone = objectSerializeAndDeserialize(original);
-        assertThat(clone).isEqualTo(original);
+        assertThat(Serialization.roundTrip(original)).isEqualTo(original);
     }
 }

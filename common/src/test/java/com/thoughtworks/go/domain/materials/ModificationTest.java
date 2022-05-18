@@ -18,11 +18,11 @@ package com.thoughtworks.go.domain.materials;
 import com.google.gson.Gson;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
-import com.thoughtworks.go.util.SerializationTester;
+import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,20 +44,20 @@ public class ModificationTest {
         assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
     }
 
-    @Test public void shouldAllowAdditionalData() throws Exception {
+    @Test public void shouldAllowAdditionalData() {
         String expected = "some additional data";
         Modification modification = new Modification("loser", "", null, new Date(), "rev-123", expected);
         assertThat(modification.getAdditionalData(), is(expected));
     }
 
-    @Test public void shouldAllowNullComment() throws Exception {
+    @Test public void shouldAllowNullComment() {
         Modification mod = new Modification("user", null, "email", new Date(), "1");
         assertThat(mod.getComment(), is(nullValue()));
         assertThat(mod.getCardNumbersFromComment().isEmpty(), is(true));
     }
 
     @Test
-    public void shouldReturnUserNameWhenUserNameIsNotEmpty() throws Exception {
+    public void shouldReturnUserNameWhenUserNameIsNotEmpty() {
         Modification modification = new Modification("jack", "", null, null, null);
         assertThat(modification.getUserDisplayName(), is("jack"));
     }
@@ -76,21 +76,26 @@ public class ModificationTest {
     }
 
     @Test
-    public void shouldSerializeAndUnserializeAllAttributes() throws IOException, ClassNotFoundException {
-        HashMap<String, String> additionalData = new HashMap<>();
+    public void shouldSerializeAndUnserializeAllAttributes() {
+        Map<String, String> additionalData = new HashMap<>();
         additionalData.put("foo", "bar");
-        Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
+        Modification modification = new Modification("user", "comment", "foo@bar.com", nowWithNoMillis(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
         modification.setPipelineLabel("label-1");
 
-        Modification unserializedModification = SerializationTester.objectSerializeAndDeserialize(modification);
+        Modification unserializedModification = Serialization.roundTrip(modification);
         assertThat(unserializedModification.getAdditionalData(), is(JsonHelper.toJsonString(additionalData)));
         assertThat(unserializedModification, is(modification));
 
-        modification = new Modification("user", null, "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
-        unserializedModification = SerializationTester.objectSerializeAndDeserialize(modification);
+        modification = new Modification("user", null, "foo@bar.com", nowWithNoMillis(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
+        unserializedModification = Serialization.roundTrip(modification);
         assertThat(unserializedModification.getComment(), is(nullValue()));
         assertThat(unserializedModification.getAdditionalData(), is(JsonHelper.toJsonString(additionalData)));
         assertThat(unserializedModification, is(modification));
+    }
+
+    // Use to produce Dates without a mills components for types serialized that accuracy is not critical
+    private Date nowWithNoMillis() {
+        return DateTime.now().withMillisOfSecond(0).toDate();
     }
 
     @Test

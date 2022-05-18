@@ -15,10 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.SerializationTester;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,13 +93,6 @@ public class EnvironmentVariableContextTest {
         List<String> report = context.report(Collections.singleton("PATH"));
         assertThat(report.size(), is(1));
         assertThat(report.get(0), is("[go] overriding environment variable 'PATH' with value '/foo'"));
-    }
-
-    @Test
-    public void shouldBeAbleToSerialize() throws ClassNotFoundException, IOException {
-        EnvironmentVariableContext original = new EnvironmentVariableContext("blahKey", "blahValue");
-        EnvironmentVariableContext clone = SerializationTester.objectSerializeAndDeserialize(original);
-        assertThat(clone,is(original));
     }
 
     @Test

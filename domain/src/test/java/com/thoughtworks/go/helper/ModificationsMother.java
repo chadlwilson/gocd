@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
@@ -32,7 +30,9 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.GoConstants;
-import org.joda.time.DateTime;
+
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class ModificationsMother {
     public static final String MOD_COMMENT = "Fixing the not checked in files";
@@ -41,12 +41,12 @@ public class ModificationsMother {
     public static final String MOD_USER = "lgao";
     public static final String MOD_USER_COMMITTER = "committer";
     public static final String MOD_USER_WITH_HTML_CHAR = "committer <html />";
-    public static final Date TWO_DAYS_AGO_CHECKIN = new DateTime().minusDays(2).toDate();
-    public static final Date YESTERDAY_CHECKIN = new DateTime().minusDays(1).toDate();
 
-    public static final Date TODAY_CHECKIN = new Date();
+    public static final Date TWO_DAYS_AGO_CHECKIN = Date.from(ZonedDateTime.now().minusDays(2).withNano(0).toInstant());
+    public static final Date YESTERDAY_CHECKIN = Date.from(ZonedDateTime.now().minusDays(1).withNano(0).toInstant());
+    public static final Date TODAY_CHECKIN = Date.from(ZonedDateTime.now().withNano(0).toInstant());
+
     public static final ModifiedAction MOD_MODIFIED_ACTION = ModifiedAction.added;
-    public static final String MOD_TYPE = "svn";
     public static final String MOD_FILE_BUILD_XML = "build.xml";
     public static final String MOD_FILE_OLD_BUILD_XML = "oldbuild.xml";
     public static final String MOD_FILE_READ_ME = "README.txt";

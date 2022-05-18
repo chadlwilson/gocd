@@ -36,6 +36,7 @@ import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
 import com.thoughtworks.go.remote.work.Work;
@@ -221,7 +222,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAssignWorkToDeniedAgent() throws Exception {
+    public void shouldNotAssignWorkToDeniedAgent() {
         Agent deniedAgentConfig = AgentMother.localAgent();
         deniedAgentConfig.disable();
 
@@ -244,7 +245,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAssignCancelledJob() throws Exception {
+    public void shouldNotAssignCancelledJob() {
         AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
@@ -273,7 +274,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelOutOfDateBuilds() throws Exception {
+    public void shouldCancelOutOfDateBuilds() {
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
         configHelper.removeStage(fixture.pipelineName, fixture.devStage);
@@ -287,7 +288,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelBuildsForDeletedStagesWhenPipelineConfigChanges() throws Exception {
+    public void shouldCancelBuildsForDeletedStagesWhenPipelineConfigChanges() {
         buildAssignmentService.initialize();
 
         fixture.createPipelineWithFirstStageScheduled();
@@ -370,7 +371,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelBuildBelongingToNonExistentPipeline() throws Exception {
+    public void shouldCancelBuildBelongingToNonExistentPipeline() {
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
@@ -442,7 +443,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelBuildBelongingToNonExistentPipelineWhenCreatingWork() throws Exception {
+    public void shouldCancelBuildBelongingToNonExistentPipelineWhenCreatingWork() {
         fixture.createPipelineWithFirstStageScheduled();
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
 
@@ -481,14 +482,14 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToSerializeAndDeserializeBuildWork() throws Exception {
+    public void shouldBeAbleToSerializeAndDeserializeBuildWork() {
         Pipeline pipeline1 = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline1);
 
         buildAssignmentService.onTimer();
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
 
-        BuildWork deserialized = SerializationTester.objectSerializeAndDeserialize(work);
+        BuildWork deserialized = Serialization.roundTrip(work);
 
         assertThat(deserialized.getAssignment().materialRevisions(), is(work.getAssignment().materialRevisions()));
 
@@ -497,7 +498,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateWorkWithFetchMaterialsFlagFromStageConfig() throws Exception {
+    public void shouldCreateWorkWithFetchMaterialsFlagFromStageConfig() {
         evolveConfig.getFirstStageConfig().setFetchMaterials(true);
         Pipeline pipeline1 = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline1);
@@ -523,7 +524,7 @@ public class BuildAssignmentServiceIntegrationTest {
      * ---> :: material dependency
      */
     @Test
-    public void shouldCreateWork_withAncestorFetchArtifactCalls_resolvedToRelevantStage() throws Exception {
+    public void shouldCreateWork_withAncestorFetchArtifactCalls_resolvedToRelevantStage() {
         configHelper.addPipeline("uppest", "uppest-stage");
         configHelper.addStageToPipeline("uppest", "uppest-stage-2");
         PipelineConfig uppest = configHelper.addStageToPipeline("uppest", "uppest-stage-3");
@@ -615,7 +616,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleIfAgentDoesNotHaveResources() throws Exception {
+    public void shouldNotScheduleIfAgentDoesNotHaveResources() {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
@@ -632,7 +633,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleIfAgentDoesNotHaveMatchingResources() throws Exception {
+    public void shouldNotScheduleIfAgentDoesNotHaveMatchingResources() {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
@@ -652,7 +653,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleIfAgentMatchingResources() throws Exception {
+    public void shouldScheduleIfAgentMatchingResources() {
         JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         jobConfig.addResourceConfig("some-resource");
 
@@ -676,7 +677,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleJobsDuringServerMaintenanceMode() throws Exception {
+    public void shouldNotScheduleJobsDuringServerMaintenanceMode() {
         maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", new Date()));
 
         JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
@@ -702,7 +703,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReScheduleToCorrectAgent() throws Exception {
+    public void shouldReScheduleToCorrectAgent() {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
@@ -762,7 +763,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelAScheduledJobInCaseStageHasBeenRenamed() throws Exception {
+    public void shouldCancelAScheduledJobInCaseStageHasBeenRenamed() {
         Material hgMaterial = new HgMaterial("url", "folder");
         String[] hgRevs = new String[]{"h1"};
         u.checkinInOrder(hgMaterial, hgRevs);
@@ -786,7 +787,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotCancelAScheduledJobInCaseThePipelineAndStageHaveBeenRenamedWithADifferentCase() throws Exception {
+    public void shouldNotCancelAScheduledJobInCaseThePipelineAndStageHaveBeenRenamedWithADifferentCase() {
         Material hgMaterial = new HgMaterial("url", "folder");
         String[] hgRevs = new String[]{"h1"};
         u.checkinInOrder(hgMaterial, hgRevs);

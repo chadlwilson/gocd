@@ -49,6 +49,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.FeedModifier;
@@ -61,7 +62,6 @@ import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -79,14 +79,12 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.helper.ModificationsMother.EMAIL_ADDRESS;
 import static com.thoughtworks.go.helper.ModificationsMother.MOD_USER;
@@ -149,7 +147,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToPersistAMaterial() throws Exception {
+    public void shouldBeAbleToPersistAMaterial() {
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         repo.saveOrUpdate(original);
 
@@ -251,21 +249,11 @@ public class MaterialRepositoryIntegrationTest {
             }
         }, 200, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
 
-        Thread thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                repo.findModificationsSince(svn, first);
-            }
-        });
+        Thread thread1 = new Thread(() -> repo.findModificationsSince(svn, first));
         thread1.start();
         TestUtils.sleepQuietly(50);
 
-        Thread thread2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                repo.findModificationsSince(svn, second);
-            }
-        });
+        Thread thread2 = new Thread(() -> repo.findModificationsSince(svn, second));
         thread2.start();
 
         thread1.join();
@@ -339,7 +327,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFindMaterialInstanceIfExists() throws Exception {
+    public void shouldFindMaterialInstanceIfExists() {
         Material svn = MaterialsMother.svnMaterial();
         MaterialInstance material1 = repo.findOrCreateFrom(svn);
         MaterialInstance material2 = repo.findOrCreateFrom(svn);
@@ -348,7 +336,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void materialShouldNotBeSameIfOneFieldIsNull() throws Exception {
+    public void materialShouldNotBeSameIfOneFieldIsNull() {
         Material svn1 = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
         MaterialInstance material1 = repo.findOrCreateFrom(svn1);
 
@@ -381,12 +369,7 @@ public class MaterialRepositoryIntegrationTest {
         repo.setHibernateTemplate(mockTemplate);
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    repo.findOrCreateFrom(svn);
-                }
-            }, "thread-" + i);
+            Thread thread = new Thread(() -> repo.findOrCreateFrom(svn), "thread-" + i);
             threads.add(thread);
             thread.start();
         }
@@ -398,7 +381,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void findOrCreateFrom_shouldCacheMaterialInstanceOnCreate() throws Exception {
+    public void findOrCreateFrom_shouldCacheMaterialInstanceOnCreate() {
         Material svn = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
 
         MaterialInstance instance = repo.findOrCreateFrom(svn);
@@ -414,7 +397,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void findMaterialInstance_shouldCacheMaterialInstance() throws Exception {
+    public void findMaterialInstance_shouldCacheMaterialInstance() {
         Material svn1 = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
         repo.saveOrUpdate(svn1.createMaterialInstance());
 
@@ -436,7 +419,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToPersistAMaterialWithNullBooleans() throws Exception {
+    public void shouldBeAbleToPersistAMaterialWithNullBooleans() {
         P4Material p4Material = new P4Material("serverAndPort", "view");
 
         MaterialInstance original = p4Material.createMaterialInstance();
@@ -449,7 +432,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistModificationsWithMaterials() throws Exception {
+    public void shouldPersistModificationsWithMaterials() {
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), false);
         repo.saveOrUpdate(original);
 
@@ -458,7 +441,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistModifiedFiles() throws Exception {
+    public void shouldPersistModifiedFiles() {
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         Modification modification = new Modification("user", "comment", "email", new Date(), ModificationsMother.nextRevision());
         modification.createModifiedFile("file1", "folder1", ModifiedAction.added);
@@ -470,7 +453,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToFindModificationsSinceAPreviousChange() throws Exception {
+    public void shouldBeAbleToFindModificationsSinceAPreviousChange() {
         SvnMaterial original = MaterialsMother.svnMaterial();
 
         MaterialRevision originalRevision = saveOneScmModification(original, "user1", "file1");
@@ -482,7 +465,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFindNoModificationsSinceLatestChange() throws Exception {
+    public void shouldFindNoModificationsSinceLatestChange() {
         SvnMaterial original = MaterialsMother.svnMaterial();
 
         MaterialRevision originalRevision = saveOneScmModification(original, "user", "file1");
@@ -493,24 +476,18 @@ public class MaterialRepositoryIntegrationTest {
 
 
     @Test
-    public void materialsShouldBeSerializable() throws Exception {
+    public void materialsShouldBeSerializable() {
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial();
-        Modification modification = new Modification("user", "comment", "email", new Date(), "revision");
+        Modification modification = new Modification("user", "comment", "email", DateTime.now().withMillisOfSecond(0).toDate(), "revision");
         modification.createModifiedFile("file1", "folder1", ModifiedAction.added);
         modification.createModifiedFile("file2", "folder2", ModifiedAction.deleted);
 
         final MaterialRevision materialRevision = new MaterialRevision(svnMaterial, modification);
-        MaterialInstance materialInstance = (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                return repo.saveMaterialRevision(materialRevision);
-            }
-        });
+        MaterialInstance materialInstance = transactionTemplate.execute(status -> repo.saveMaterialRevision(materialRevision));
 
         List<Modification> mods = repo.findMaterialRevisionsForMaterial(materialInstance.getId());
 
-        List<Modification> deserialized = SerializationTester.objectSerializeAndDeserialize(mods);
-        assertThat(deserialized, is(mods));
+        mods.forEach(mod -> assertThat(Serialization.roundTrip(mod), is(mod)));
     }
 
     @Test
@@ -665,37 +642,37 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldSavePipelineMaterialRevisions() throws Exception {
+    public void shouldSavePipelineMaterialRevisions() {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("gitUrl", "folder", "user", "pass", true, "*.doc");
         assertCanLoadAndSaveMaterialRevisionsFor(svnMaterialConfig);
     }
 
     @Test
-    public void shouldSaveGitPipelineMaterialRevisions() throws Exception {
+    public void shouldSaveGitPipelineMaterialRevisions() {
         GitMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("gitUrl", "submoduleFolder", "branch", false);
         assertCanLoadAndSaveMaterialRevisionsFor(gitMaterialConfig);
     }
 
     @Test
-    public void shouldSaveHgPipelineMaterialRevisions() throws Exception {
+    public void shouldSaveHgPipelineMaterialRevisions() {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig("hgUrl", "dest");
         assertCanLoadAndSaveMaterialRevisionsFor(hgMaterialConfig);
     }
 
     @Test
-    public void shouldSaveP4PipelineMaterialRevisions() throws Exception {
+    public void shouldSaveP4PipelineMaterialRevisions() {
         P4MaterialConfig p4MaterialConfig = MaterialConfigsMother.p4MaterialConfig("serverAndPort", "user", "pwd", "view", true);
         assertCanLoadAndSaveMaterialRevisionsFor(p4MaterialConfig);
     }
 
     @Test
-    public void shouldSaveDependencyPipelineMaterialRevisions() throws Exception {
+    public void shouldSaveDependencyPipelineMaterialRevisions() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
         assertCanLoadAndSaveMaterialRevisionsFor(dependencyMaterialConfig);
     }
 
     @Test
-    public void shouldReturnModificationForASpecificRevision() throws Exception {
+    public void shouldReturnModificationForASpecificRevision() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
         MaterialRevision originalRevision = saveOneDependencyModification(dependencyMaterial, "blahPipeline/3/blahStage/1");
 
@@ -706,7 +683,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPickupTheRightFromAndToForMaterialRevisions() throws Exception {
+    public void shouldPickupTheRightFromAndToForMaterialRevisions() {
         HgMaterial material = new HgMaterial("sdg", null);
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("6")));
         saveMaterialRev(firstRevision);
@@ -722,7 +699,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldUseToAndFromAsRangeForSCMMaterialRevisionWhileSavingAndUpdating() throws Exception {
+    public void shouldUseToAndFromAsRangeForSCMMaterialRevisionWhileSavingAndUpdating() {
         HgMaterial material = new HgMaterial("sdg", null);
         final MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("10"), modification("9"), modification("8")));
         saveMaterialRev(firstRevision);
@@ -756,7 +733,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFixToAsFromForDependencyMaterialRevisionWhileSavingAndUpdating() throws Exception {
+    public void shouldFixToAsFromForDependencyMaterialRevisionWhileSavingAndUpdating() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/10/stage_name/1"), modification("pipeline_name/9/stage_name/2"), modification("pipeline_name/8/stage_name/2")));
         saveMaterialRev(firstRevision);
@@ -788,7 +765,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistActualFromRevisionSameAsFromForSCMMaterial() throws Exception {
+    public void shouldPersistActualFromRevisionSameAsFromForSCMMaterial() {
         HgMaterial material = new HgMaterial("sdg", null);
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("10"), modification("9"), modification("8")));
         saveMaterialRev(firstRevision);
@@ -799,7 +776,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistActualFromRevisionUsingTheRealFromForDependencyMaterial() throws Exception {
+    public void shouldPersistActualFromRevisionUsingTheRealFromForDependencyMaterial() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         Modification from = modification("pipeline_name/10/stage_name/1");
@@ -814,7 +791,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldUseTheFromIdAsActualFromIdWhenThePipelineIsBeingBuiltForTheFirstTime() throws Exception {
+    public void shouldUseTheFromIdAsActualFromIdWhenThePipelineIsBeingBuiltForTheFirstTime() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/9/stage_name/2"), actualFrom));
@@ -838,7 +815,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistActualFromRevisionForSameRevisionOfDependencyMaterialModifications() throws Exception {
+    public void shouldPersistActualFromRevisionForSameRevisionOfDependencyMaterialModifications() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(actualFrom));
@@ -856,7 +833,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldUpdatePipelineMaterialRevisions() throws Exception {
+    public void shouldUpdatePipelineMaterialRevisions() {
         HgMaterial material = new HgMaterial("sdg", null);
         Modification first = modification("6");
         Modification second = modification("7");
@@ -876,7 +853,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnMaterialRevisionsWithEmptyModificationsWhenNoModifications() throws Exception {
+    public void shouldReturnMaterialRevisionsWithEmptyModificationsWhenNoModifications() {
         Material material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevisions materialRevisions = repo.findLatestRevisions(new MaterialConfigs(material.config()));
@@ -887,7 +864,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnMatchedRevisionsForAGivenSearchString() throws Exception {
+    public void shouldReturnMatchedRevisionsForAGivenSearchString() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision materialRevision = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -899,7 +876,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldMatchPipelineLabelForDependencyModifications() throws Exception {
+    public void shouldMatchPipelineLabelForDependencyModifications() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneDependencyModification(material, "pipeline-name/1/stage-name/3", "my-random-label-123");
@@ -918,7 +895,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldMatchSearchStringAcrossColumn() throws Exception {
+    public void shouldMatchSearchStringAcrossColumn() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -937,7 +914,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldMatchSearchStringInDecreasingOrder() throws Exception {
+    public void shouldMatchSearchStringInDecreasingOrder() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -950,7 +927,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldConsiderFieldToBeEmptyWhenRevisionOrUsernameOrCommentIsNull() throws Exception {
+    public void shouldConsiderFieldToBeEmptyWhenRevisionOrUsernameOrCommentIsNull() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision userIsNullRevision = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, null, "meet_you_in_hell.txt", "bring it on!");
@@ -970,7 +947,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFindLatestRevision() throws Exception {
+    public void shouldFindLatestRevision() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -984,7 +961,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldCacheModificationCountsForMaterialCorrectly() throws Exception {
+    public void shouldCacheModificationCountsForMaterialCorrectly() {
         ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -1000,7 +977,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldCacheModificationsForMaterialCorrectly() throws Exception {
+    public void shouldCacheModificationsForMaterialCorrectly() {
         final ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -1030,7 +1007,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldGetPaginatedModificationsForMaterialCorrectly() throws Exception {
+    public void shouldGetPaginatedModificationsForMaterialCorrectly() {
         ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -1055,7 +1032,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldCachePaginatedModificationsForMaterialCorrectly() throws Exception {
+    public void shouldCachePaginatedModificationsForMaterialCorrectly() {
         final ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -1099,7 +1076,7 @@ public class MaterialRepositoryIntegrationTest {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 MaterialInstance foo = repo.findOrCreateFrom(material);
 
-                repo.saveModifications(foo, asList(modOne));
+                repo.saveModifications(foo, List.of(modOne));
             }
         });
 
@@ -1180,12 +1157,9 @@ public class MaterialRepositoryIntegrationTest {
     public void shouldRemoveDuplicatesBeforeInsertingModifications() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, firstSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, firstSetOfModifications);
+            return null;
         });
 
         Modifications firstSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
@@ -1196,22 +1170,14 @@ public class MaterialRepositoryIntegrationTest {
 
         final ArrayList<Modification> secondSetOfModificationsContainingDuplicateRevisions = getModifications(4);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, secondSetOfModificationsContainingDuplicateRevisions);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, secondSetOfModificationsContainingDuplicateRevisions);
+            return null;
         });
         Modifications secondSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
         assertThat(secondSetOfModificationsFromDb.size(), is(4));
         for (final Modification fromPreviousCycle : firstSetOfModificationsFromDb) {
-            Modification modification = secondSetOfModificationsFromDb.stream().filter(new Predicate<Modification>() {
-                @Override
-                public boolean test(Modification item) {
-                    return item.getId() == fromPreviousCycle.getId();
-                }
-            }).findFirst().orElse(null);
+            Modification modification = secondSetOfModificationsFromDb.stream().filter(item -> item.getId() == fromPreviousCycle.getId()).findFirst().orElse(null);
             assertThat(modification, is(notNullValue()));
         }
         for (Modification modification : secondSetOfModificationsContainingDuplicateRevisions) {
@@ -1223,12 +1189,9 @@ public class MaterialRepositoryIntegrationTest {
     public void shouldNotBlowUpReportErrorIfAnAttemptIsMadeToInsertOnlyDuplicateModificationsForAGivenMaterial() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, firstSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, firstSetOfModifications);
+            return null;
         });
         Modifications firstSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
         assertThat(firstSetOfModificationsFromDb.size(), is(3));
@@ -1237,12 +1200,9 @@ public class MaterialRepositoryIntegrationTest {
         }
 
         final ArrayList<Modification> secondSetOfModificationsContainingAllDuplicateRevisions = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, secondSetOfModificationsContainingAllDuplicateRevisions);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, secondSetOfModificationsContainingAllDuplicateRevisions);
+            return null;
         });
     }
 
@@ -1251,24 +1211,18 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance1 = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final MaterialInstance materialInstance2 = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> modificationsForFirstMaterial = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance1, modificationsForFirstMaterial);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance1, modificationsForFirstMaterial);
+            return null;
         });
 
         assertThat(repo.getModificationsFor(materialInstance1, Pagination.pageByNumber(1, 10, 10)).size(), is(3));
 
         final ArrayList<Modification> modificationsForSecondMaterial = getModifications(3);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance2, modificationsForSecondMaterial);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance2, modificationsForSecondMaterial);
+            return null;
         });
         Modifications modificationsFromDb = repo.getModificationsFor(materialInstance2, Pagination.pageByNumber(1, 10, 10));
         assertThat(modificationsFromDb.size(), is(3));
@@ -1283,12 +1237,9 @@ public class MaterialRepositoryIntegrationTest {
         String key = repo.materialModificationsWithPaginationKey(materialInstance);
         String subKey = repo.materialModificationsWithPaginationSubKey(Pagination.ONE_ITEM);
         goCache.put(key, subKey, new Modifications(new Modification()));
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, new ArrayList<>());
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, new ArrayList<>());
+            return null;
         });
         assertThat(goCache.get(key, subKey), is(notNullValue()));
     }
@@ -1299,26 +1250,20 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         int count = 10000;
         final ArrayList<Modification> firstSetOfModifications = getModifications(count);
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, firstSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, firstSetOfModifications);
+            return null;
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count)));
+        assertThat(repo.getTotalModificationsFor(materialInstance), is((long) count));
 
         final ArrayList<Modification> secondSetOfModifications = getModifications(count + 1);
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, secondSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, secondSetOfModifications);
+            return null;
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count + 1)));
+        assertThat(repo.getTotalModificationsFor(materialInstance), is((long) count + 1));
     }
 
     @Test
@@ -1341,7 +1286,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(instance.getFingerprint(), is(material.getFingerprint()));
         assertThat(instance.getUrl(), is(material.getUrl()));
         assertThat(instance.getUsername(), is(material.getUserName()));
-        assertThat(instance.getBranch(), isEmptyOrNullString());
+        assertThat(instance.getBranch(), is(emptyOrNullString()));
         assertThat(instance.getCheckExternals(), is(material.isCheckExternals()));
     }
 
@@ -1421,7 +1366,7 @@ public class MaterialRepositoryIntegrationTest {
 
         assertThat(instance, instanceOf(PackageMaterialInstance.class));
         assertThat(instance.getFingerprint(), is(material.getFingerprint()));
-        assertThat(instance.getAdditionalData(), isEmptyOrNullString());
+        assertThat(instance.getAdditionalData(), is(emptyOrNullString()));
         PackageMaterial packageMaterial = JsonHelper.fromJson(instance.getConfiguration(), PackageMaterial.class);
         assertThat(packageMaterial, is(material));
     }
@@ -1441,7 +1386,7 @@ public class MaterialRepositoryIntegrationTest {
 
         assertThat(instance, instanceOf(PluggableSCMMaterialInstance.class));
         assertThat(instance.getFingerprint(), is(material.getFingerprint()));
-        assertThat(instance.getAdditionalData(), isEmptyOrNullString());
+        assertThat(instance.getAdditionalData(), is(emptyOrNullString()));
         PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJson(instance.getConfiguration(), PluggableSCMMaterial.class);
         assertThat(pluggableSCMMaterial, is(material));
     }
@@ -1670,24 +1615,16 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private MaterialRevision saveOneDependencyModification(final DependencyMaterial dependencyMaterial, final String revision, final String label) {
-        return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification(new Date(), revision, label, null);
-                MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
-                repo.save(new MaterialRevisions(originalRevision));
-                return originalRevision;
-            }
+        return transactionTemplate.execute(status -> {
+            Modification modification = new Modification(new Date(), revision, label, null);
+            MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
+            repo.save(new MaterialRevisions(originalRevision));
+            return originalRevision;
         });
     }
 
     private MaterialInstance saveMaterialRev(final MaterialRevision rev) {
-        return (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                return repo.saveMaterialRevision(rev);
-            }
-        });
+        return transactionTemplate.execute(status -> repo.saveMaterialRevision(rev));
     }
 
     private Pipeline createPipeline() {
@@ -1758,17 +1695,14 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private MaterialRevision saveOneScmModification(final String revision, final Material original, final String user, final String filename, final String comment) {
-        return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification(user, comment, "email", new Date(), revision);
-                modification.createModifiedFile(filename, "folder1", ModifiedAction.added);
+        return transactionTemplate.execute(status -> {
+            Modification modification = new Modification(user, comment, "email", new Date(), revision);
+            modification.createModifiedFile(filename, "folder1", ModifiedAction.added);
 
-                MaterialRevision originalRevision = new MaterialRevision(original, modification);
+            MaterialRevision originalRevision = new MaterialRevision(original, modification);
 
-                repo.save(new MaterialRevisions(originalRevision));
-                return originalRevision;
-            }
+            repo.save(new MaterialRevisions(originalRevision));
+            return originalRevision;
         });
     }
 

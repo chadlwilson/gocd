@@ -46,6 +46,7 @@ import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -66,8 +67,14 @@ public class Serialization {
         return SingletonHolder.INSTANCE;
     }
 
+    @SuppressWarnings("unchecked")
+    @VisibleForTesting
+    public static <T> T roundTrip(T object) {
+        return (T) instance().fromJson(instance().toJson(object), object.getClass());
+    }
+
     @SuppressWarnings("deprecation")
-    public static Gson create() {
+    private static Gson create() {
         return new GsonBuilder()
                 .registerTypeAdapter(GoCipher.class, new SecurityRejectingAdapter<GoCipher>())
                 .registerTypeAdapter(AESEncrypter.class, new SecurityRejectingAdapter<AESEncrypter>())
