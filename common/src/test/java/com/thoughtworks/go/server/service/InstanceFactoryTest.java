@@ -26,10 +26,11 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.*;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -175,7 +176,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldClear_DatabaseIds_State_and_Result_ForJobObjectHierarchy() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
@@ -198,7 +199,7 @@ class InstanceFactoryTest {
 
     @Test
     void should_MaintainRerunOfReferences_InCaseOfMultipleCopyForRerunOperations() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
@@ -239,12 +240,12 @@ class InstanceFactoryTest {
             }
 
             @Override
-            public DateTime currentDateTime() {
+            public Instant currentInstant() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
             @Override
-            public DateTime timeoutTime(Timeout timeout) {
+            public Instant timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }
         };
@@ -413,7 +414,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForSingleInstanceJob() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
@@ -433,7 +434,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldClearAgentAssignment_ForSingleInstanceJobType() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
@@ -445,7 +446,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForSingleJobInstance() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -546,7 +547,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldBomb_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll_WithTwoRunOnAllInstancesSelectedForRerun() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -575,7 +576,7 @@ class InstanceFactoryTest {
 
     @Test
     void should_NOT_ClearAgentAssignment_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -612,7 +613,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldClearAgentAssignment_ForRunOnAllAgentsJobType() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
@@ -644,7 +645,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunOnAllAgentsJobInstance() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -676,7 +677,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForRunOnAllAgentsJobInstance() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -715,7 +716,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldCreateJobInstancesCorrectly_RunMultipleInstance() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -748,7 +749,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldCreateJobInstancesCorrectly_RunMultipleInstance_Rerun() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -793,7 +794,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunMultipleInstance() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -822,7 +823,7 @@ class InstanceFactoryTest {
 
     @Test
     void shouldNotRerun_WhenJobRunConfigIsChanged_ForRunMultipleInstance() {
-        Date old = new DateTime().minusDays(2).toDate();
+        Date old = Date.from(ZonedDateTime.now().minusDays(2).toInstant());
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));

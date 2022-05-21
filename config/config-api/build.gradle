@@ -36,7 +36,6 @@ dependencies {
   implementation project.deps.slf4j
   implementation project.deps.felix
   api project.deps.guava
-  implementation project.deps.jodaTime
   providedAtPackageTime project.deps.bouncyCastle
   annotationProcessor project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations

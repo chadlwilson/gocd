@@ -25,7 +25,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -33,11 +32,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.mockito.Mockito.*;
 
 class ConsoleActivityMonitorTest {
@@ -88,11 +90,11 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldMonitorConsoleActivityForBuildingJobs() {
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
-        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
+        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         consoleActivityMonitor.consoleUpdatedFor(unresponsiveJob);
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 5, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 5, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
 
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
         verifyNoMoreInteractions(jobInstanceService);
@@ -101,21 +103,21 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldCancelUnresponsiveJobs() {
-        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
 
-        JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+        JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
         activeJobListener.jobStatusChanged(buildingInstance(responsiveJob));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
 
         consoleActivityMonitor.consoleUpdatedFor(unresponsiveJob);
 
         consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 0, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 0, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
         verify(scheduleService).cancelJob(unresponsiveJob);
@@ -126,21 +128,21 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldCancelUnresponsiveJobAndLetOtherJobComplete() {
-        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
 
-        JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+        JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
         activeJobListener.jobStatusChanged(buildingInstance(responsiveJob));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
 
         consoleActivityMonitor.consoleUpdatedFor(unresponsiveJob);
 
         consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 0, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 0, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
         verify(scheduleService).cancelJob(unresponsiveJob);
@@ -151,13 +153,13 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldNotCancelJobIfJobTimeOutIsSetTo0() {
-        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.consoleUpdatedFor(unresponsiveJob);
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         when(goConfigService.canCancelJobIfHung(unresponsiveJob)).thenReturn(false);
 
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
@@ -181,7 +183,7 @@ class ConsoleActivityMonitorTest {
         job.completed(new Date());
         activeJobListener.jobStatusChanged(job);
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime().plusDays(10).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.now().plusDays(10).toInstant().toEpochMilli());
 
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
         verifyNoMoreInteractions(jobInstanceService);
@@ -189,8 +191,8 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldNotCancelCompletedJob_becauseOfActivityAfterCompletion() {
-        DateTime now = new DateTime();
-        when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
+        ZonedDateTime now = ZonedDateTime.now();
+        when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
 
         JobIdentifier jobId = new JobIdentifier("foo-pipeline", 10, "foo-10", "bar-stage", "20", "baz-build");
         JobInstance job = buildingInstance(jobId);
@@ -202,7 +204,7 @@ class ConsoleActivityMonitorTest {
 
         consoleActivityMonitor.consoleUpdatedFor(jobId); //Once a job is completed we should not track the console updates.
 
-        when(timeProvider.currentTimeMillis()).thenReturn(now.plusDays(10).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(now.plusDays(10).toInstant().toEpochMilli());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
         verifyNoMoreInteractions(jobInstanceService);
     }
@@ -236,19 +238,19 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldSetServerHealthMessageWhenJobSeemsUnresponsive() {
-        DateTime now = new DateTime();
-        when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-        JobIdentifier job = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+        ZonedDateTime now = ZonedDateTime.now();
+        when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+        JobIdentifier job = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
         activeJobListener.jobStatusChanged(buildingInstance(job));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plusSeconds(1).getMillis());//just over warning time limit i.e. 2 minutes
+        when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//just over warning time limit i.e. 2 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
         verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                 "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but has not shown any console activity in the last 2 minute(s). This job may be hung.",
                 general(forJob("foo", "stage", "job"))));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(4).plusSeconds(1).getMillis());//after 4 minutes
+        when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(4).plusSeconds(1).toInstant().toEpochMilli());//after 4 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
         verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
@@ -256,7 +258,7 @@ class ConsoleActivityMonitorTest {
                 general(forJob("foo", "stage", "job"))));
 
         when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(360 * 60 * 1000L);//6 hours
-        when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).getMillis());//after 62 minutes
+        when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//after 62 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
         verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
@@ -266,23 +268,23 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldClearServerHealthMessageWhenUnresponsiveJobShowsActivity() {
-        DateTime now = new DateTime();
-        when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-        JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+        ZonedDateTime now = ZonedDateTime.now();
+        when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+        JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
         activeJobListener.jobStatusChanged(buildingInstance(responsiveJob));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(1).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(1, MILLIS).toInstant().toEpochMilli());
         consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
         verify(serverHealthService).removeByScope(forJob("foo", "stage", "job"));
     }
 
     @Test
     void shouldClearServerHealthMessageWhenUnresponsiveJobIsCancelled() {
-        DateTime now = new DateTime();
-        when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-        JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+        ZonedDateTime now = ZonedDateTime.now();
+        when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+        JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
-        when(timeProvider.currentTimeMillis()).thenReturn(now.plus(UNRESPONSIVE_JOB_KILL_THRESHOLD).plus(1).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(now.plus(UNRESPONSIVE_JOB_KILL_THRESHOLD, MILLIS).plus(1, MILLIS).toInstant().toEpochMilli());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
         verify(scheduleService).cancelJob(unresponsiveJob);
         verify(serverHealthService).removeByScope(forJob("foo", "stage", "job"));
@@ -290,9 +292,9 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldClearServerHealthMessageForAnyJobCancelledExternally() {
-        DateTime now = new DateTime();
-        when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-        JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+        ZonedDateTime now = ZonedDateTime.now();
+        when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+        JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
         JobInstance job = buildingInstance(unresponsiveJob);
         activeJobListener.jobStatusChanged(job);
         job.cancel();
@@ -302,13 +304,13 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldAppendToConsoleLog_JobKilledDueToInactivityMessage() throws IOException, IllegalArtifactLocationException {
-        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+        JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.consoleUpdatedFor(unresponsiveJob);
 
-        when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+        when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
         verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not generated any console output for more than 5 minute(s)");
@@ -316,7 +318,7 @@ class ConsoleActivityMonitorTest {
 
     @Test
     void shouldClearServerHealthMessageForARescheduledJob() {
-        JobIdentifier rescheduledJobIdentifier = new JobIdentifier("foo", 10, "label-10", "stage", "3", "job", 10l);
+        JobIdentifier rescheduledJobIdentifier = new JobIdentifier("foo", 10, "label-10", "stage", "3", "job", 10L);
         JobInstance jobInstance = new JobInstance();
         jobInstance.setIdentifier(rescheduledJobIdentifier);
         jobInstance.setState(JobState.Rescheduled);
@@ -330,19 +332,19 @@ class ConsoleActivityMonitorTest {
     class ScheduledJob {
         @Test
         void shouldCancelUnassignedJobAndLetOtherJobComplete() {
-            JobIdentifier unassignedJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+            JobIdentifier unassignedJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(unassignedJob));
 
-            JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+            JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
             scheduledJobListener.jobStatusChanged(buildingInstance(responsiveJob));
 
-            when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
 
             consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
-            when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 0, 0, 0).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 0, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
             consoleActivityMonitor.consoleUpdatedFor(responsiveJob);
 
-            when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(scheduleService).cancelJob(unassignedJob);
@@ -353,13 +355,13 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldNotCancelJobIfJobTimeOutIsSetTo0() {
-            JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+            JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(unresponsiveJob));
 
-            when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1971, 1, 1, 0, 55, 59, 0).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1971, 1, 1, 0, 55, 59, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
             consoleActivityMonitor.consoleUpdatedFor(unresponsiveJob);
 
-            when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
             when(goConfigService.canCancelJobIfHung(unresponsiveJob)).thenReturn(false);
 
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
@@ -371,25 +373,25 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldSetServerHealthMessageWhenJobIsUnassignedForMoreThan5minutes() {
-            DateTime now = new DateTime();
-            when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-            JobIdentifier job = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+            ZonedDateTime now = ZonedDateTime.now();
+            when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+            JobIdentifier job = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(job));
 
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plusSeconds(1).getMillis());//just over warning time limit i.e. 2 minutes
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//just over warning time limit i.e. 2 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                     "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 2 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
 
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(4).plusSeconds(1).getMillis());//after 4 minutes
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(4).plusSeconds(1).toInstant().toEpochMilli());//after 4 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                     "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 4 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
 
             when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(360 * 60 * 1000L);//6 hours
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).getMillis());//after 62 minutes
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//after 62 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
@@ -398,25 +400,25 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldClearServerHealthMessageWhenUnassignedJobGetsAssigned() {
-            DateTime now = new DateTime();
-            when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-            JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+            ZonedDateTime now = ZonedDateTime.now();
+            when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+            JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
             JobInstance jobInstance = scheduledInstance(responsiveJob);
             scheduledJobListener.jobStatusChanged(jobInstance);
 
             jobInstance.setState(JobState.Assigned);
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(1).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(1, MILLIS).toInstant().toEpochMilli());
             scheduledJobListener.jobStatusChanged(jobInstance);
             verify(serverHealthService).removeByScope(forJob("foo", "stage", "job"));
         }
 
         @Test
         void shouldClearServerHealthMessageWhenUnassignedJobIsCancelled() {
-            DateTime now = new DateTime();
-            when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-            JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+            ZonedDateTime now = ZonedDateTime.now();
+            when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+            JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(unresponsiveJob));
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plus(UNRESPONSIVE_JOB_KILL_THRESHOLD).plus(1).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plus(UNRESPONSIVE_JOB_KILL_THRESHOLD, MILLIS).plus(1, MILLIS).toInstant().toEpochMilli());
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
             verify(scheduleService).cancelJob(unresponsiveJob);
             verify(serverHealthService).removeByScope(forJob("foo", "stage", "job"));
@@ -424,9 +426,9 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldClearServerHealthMessageForAnyJobCancelledExternally() {
-            DateTime now = new DateTime();
-            when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-            JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+            ZonedDateTime now = ZonedDateTime.now();
+            when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+            JobIdentifier unresponsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
             JobInstance job = scheduledInstance(unresponsiveJob);
             scheduledJobListener.jobStatusChanged(job);
             job.cancel();
@@ -436,10 +438,10 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldAppendToConsoleLog_JobKilledAsItWasntAssignedAnAgentMessage() throws IOException, IllegalArtifactLocationException {
-            JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25l);
+            JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(unresponsiveJob));
 
-            when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, ZoneId.systemDefault()).toInstant().toEpochMilli());
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not been assigned an agent for more than 5 minute(s)");
@@ -447,7 +449,7 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldClearServerHealthMessageForAssignedJob() {
-            JobIdentifier rescheduledJobIdentifier = new JobIdentifier("foo", 10, "label-10", "stage", "3", "job", 10l);
+            JobIdentifier rescheduledJobIdentifier = new JobIdentifier("foo", 10, "label-10", "stage", "3", "job", 10L);
             JobInstance jobInstance = new JobInstance();
             jobInstance.setIdentifier(rescheduledJobIdentifier);
             jobInstance.setState(JobState.Scheduled);
@@ -463,19 +465,19 @@ class ConsoleActivityMonitorTest {
 
         @Test
         void shouldNotClearMessagesIfJobHasAlreadyBeenAssigned() {
-            DateTime now = new DateTime();
-            when(timeProvider.currentTimeMillis()).thenReturn(now.getMillis());
-            JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20l);
+            ZonedDateTime now = ZonedDateTime.now();
+            when(timeProvider.currentTimeMillis()).thenReturn(now.toInstant().toEpochMilli());
+            JobIdentifier responsiveJob = new JobIdentifier("foo", 12, "foo-10", "stage", "2", "job", 20L);
             JobInstance jobInstance = scheduledInstance(responsiveJob);
             scheduledJobListener.jobStatusChanged(jobInstance);
 
             jobInstance.setState(JobState.Assigned);
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(1).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(1, MILLIS).toInstant().toEpochMilli());
             scheduledJobListener.jobStatusChanged(jobInstance);
             verify(serverHealthService).removeByScope(forJob("foo", "stage", "job"));
 
             jobInstance.setState(JobState.Preparing);
-            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(2).getMillis());
+            when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plus(2, MILLIS).toInstant().toEpochMilli());
             scheduledJobListener.jobStatusChanged(jobInstance);
             verifyNoMoreInteractions(serverHealthService);
         }

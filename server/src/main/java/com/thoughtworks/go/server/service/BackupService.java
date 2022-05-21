@@ -47,6 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -64,6 +66,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class BackupService implements BackupStatusProvider {
 
     public static final String ABORTED_BACKUPS_MESSAGE = "Server shut down while backup in progress.";
+    private static final DateTimeFormatter BACKUP_DIR_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
     // Don't change these enums. These are an API contract, and are used by post backup script.
     public enum BackupInitiator {
@@ -195,8 +198,8 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private ServerBackup createServerBackup(Username username) {
-        DateTime backupTime = timeProvider.currentDateTime();
-        ServerBackup serverBackup = new ServerBackup(getBackupDir(backupTime).getAbsolutePath(), backupTime.toDate(), username.getUsername().toString(), "Backup scheduled");
+        Instant backupTime = timeProvider.currentInstant();
+        ServerBackup serverBackup = new ServerBackup(getBackupDir(backupTime).getAbsolutePath(), Date.from(backupTime), username.getUsername().toString(), "Backup scheduled");
         serverBackup = serverBackupRepository.save(serverBackup);
         return serverBackup;
     }
@@ -231,8 +234,8 @@ public class BackupService implements BackupStatusProvider {
         listeners.forEach(listener -> listener.completed(message));
     }
 
-    private File getBackupDir(DateTime backupTime) {
-        return new File(backupLocation(), BACKUP + backupTime.toString("YYYYMMdd-HHmmss"));
+    private File getBackupDir(Instant backupTime) {
+        return new File(backupLocation(), BACKUP + BACKUP_DIR_FORMAT.format(backupTime));
     }
 
     private void sendBackupFailedEmail(GoMailSender mailSender, Exception e) {

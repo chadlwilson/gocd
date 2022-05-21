@@ -26,6 +26,7 @@ import com.thoughtworks.go.util.Timeout;
 import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -116,12 +117,12 @@ public class StageMother {
             }
 
             @Override
-            public DateTime currentDateTime() {
+            public Instant currentInstant() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
             @Override
-            public DateTime timeoutTime(Timeout timeout) {
+            public Instant timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }
         };

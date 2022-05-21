@@ -32,7 +32,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.Assertions;
+import com.thoughtworks.go.util.FutureAssertions;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,10 +150,10 @@ public class ScheduleHelper {
         long startTime = System.currentTimeMillis();
         pipelineScheduler.onTimer();
         if (pipelines.length == 0) {
-            Assertions.assertAlwaysHappens(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
+            FutureAssertions.assertAlwaysHappens(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
                     waitTime());
         } else {
-            Assertions.assertWillHappen(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
+            FutureAssertions.assertWillHappen(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
                     Timeout.TWENTY_SECONDS);
 
             long endTime = System.currentTimeMillis();

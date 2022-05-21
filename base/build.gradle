@@ -35,7 +35,6 @@ dependencies {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
   }
-  api project.deps.jodaTime
   api project.deps.slf4jJcl
   api project.deps.logback
   testImplementation project.deps.junit5

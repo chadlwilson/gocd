@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +46,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -353,7 +353,7 @@ class PipelineHistoryServiceTest {
 
     @Test
     void shouldPopulatePipelineInstanceModelWithTheBeforeAndAfterForTheGivenPipeline() {
-        DateTime now = new DateTime();
+        ZonedDateTime now = ZonedDateTime.now();
         PipelineTimelineEntry first = PipelineMaterialModificationMother.modification(Arrays.asList("first"), 1, "123", now);
         PipelineTimelineEntry second = PipelineMaterialModificationMother.modification(Arrays.asList("first"), 1, "123", now);
 
@@ -361,7 +361,7 @@ class PipelineHistoryServiceTest {
         when(pipelineTimeline.runAfter(1, new CaseInsensitiveString("pipeline"))).thenReturn(second);
 
 
-        PipelineInstanceModel expected = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "auto", now.toDate());
+        PipelineInstanceModel expected = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "auto", Date.from(now.toInstant()));
         expected.setId(1);
         when(pipelineDao.loadHistory(1)).thenReturn(expected);
         when(goConfigService.currentCruiseConfig()).thenReturn(CRUISE_CONFIG);

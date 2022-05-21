@@ -22,7 +22,6 @@ import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,7 +30,11 @@ import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -41,7 +44,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
-    private DateTime now;
+    private ZonedDateTime now;
     private List<String> materials;
     private PipelineTimelineEntry first;
     private PipelineTimelineEntry second;
@@ -58,13 +61,13 @@ public class PipelineTimelineTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        now = new DateTime();
+        now = ZonedDateTime.now();
         pipelineRepository = mock(PipelineRepository.class);
-        materials = Arrays.asList("first", "second", "third", "fourth");
-        first = PipelineMaterialModificationMother.modification(1, materials, Arrays.asList(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
-        second = PipelineMaterialModificationMother.modification(2, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
-        third = PipelineMaterialModificationMother.modification(3, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 3, "333", "pipeline");
-        fourth = PipelineMaterialModificationMother.modification(4, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 4, "444", "pipeline");
+        materials = List.of("first", "second", "third", "fourth");
+        first = PipelineMaterialModificationMother.modification(1, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
+        second = PipelineMaterialModificationMother.modification(2, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
+        third = PipelineMaterialModificationMother.modification(3, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 3, "333", "pipeline");
+        fourth = PipelineMaterialModificationMother.modification(4, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 4, "444", "pipeline");
         pipelineName = "pipeline";
         transactionTemplate = mock(TransactionTemplate.class);
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -125,9 +128,9 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldPopuplateTheBeforeAndAfterNodesForAGivenPipelineDuringAddition() throws Exception {
-        PipelineTimelineEntry anotherPipeline1 = PipelineMaterialModificationMother.modification("another", 4, materials, Arrays.asList(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123");
-        PipelineTimelineEntry anotherPipeline2 = PipelineMaterialModificationMother.modification("another", 5, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
-        PipelineTimelineEntry anotherPipeline3 = PipelineMaterialModificationMother.modification("another", 6, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
+        PipelineTimelineEntry anotherPipeline1 = PipelineMaterialModificationMother.modification("another", 4, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123");
+        PipelineTimelineEntry anotherPipeline2 = PipelineMaterialModificationMother.modification("another", 5, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
+        PipelineTimelineEntry anotherPipeline3 = PipelineMaterialModificationMother.modification("another", 6, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
 
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
@@ -202,7 +205,7 @@ public class PipelineTimelineTest {
 
         timeline.updateTimelineOnInit();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         verifyNoMoreInteractions(transactionSynchronizationManager);
         verifyNoMoreInteractions(transactionTemplate);
         assertThat(timeline.maximumId(), is(2L));
@@ -218,7 +221,7 @@ public class PipelineTimelineTest {
 
         timeline.update();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         assertThat(timeline.maximumId(), is(2L));
     }
 
@@ -231,7 +234,7 @@ public class PipelineTimelineTest {
 
         timeline.update();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         assertThat(timeline.maximumId(), is(-1L));
     }
 
@@ -270,8 +273,8 @@ public class PipelineTimelineTest {
                     for (PipelineTimelineEntry entry : repositoryEntries) {
                         timeline.add(entry);
                     }
-                    ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(Arrays.asList(repositoryEntries));
-                    return Arrays.asList(repositoryEntries);
+                    ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(List.of(repositoryEntries));
+                    return List.of(repositoryEntries);
                 }
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());
         }

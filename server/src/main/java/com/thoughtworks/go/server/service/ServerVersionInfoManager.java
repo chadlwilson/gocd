@@ -21,12 +21,13 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static com.thoughtworks.go.util.DateUtils.isToday;
@@ -39,7 +40,7 @@ public class ServerVersionInfoManager {
     private Clock clock;
     private GoCache goCache;
     private SystemEnvironment systemEnvironment;
-    private DateTime versionInfoUpdatingFrom;
+    private Instant versionInfoUpdatingFrom;
     private static String GO_UPDATE = "GOUpdate";
     private static final Object VERSION_INFO_MUTEX = new Object();
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerVersionInfoManager.class.getName());
@@ -67,7 +68,7 @@ public class ServerVersionInfoManager {
         synchronized (VERSION_INFO_MUTEX) {
             if (isDevelopmentServer() || isVersionInfoUpdatedToday() || isUpdateInProgress()) return null;
 
-            versionInfoUpdatingFrom = clock.currentDateTime();
+            versionInfoUpdatingFrom = clock.currentInstant();
             LOGGER.info("[Go Update Check] Starting update check at: {}", new Date());
 
             return this.serverVersionInfo;
@@ -111,7 +112,7 @@ public class ServerVersionInfoManager {
     private boolean isUpdateInProgress() {
         if (versionInfoUpdatingFrom == null) return false;
 
-        DateTime halfHourAgo = new DateTime(System.currentTimeMillis() - 30 * 60 * 1000);
+        Instant halfHourAgo = Instant.now().minus(30, ChronoUnit.MINUTES);
         return versionInfoUpdatingFrom.isAfter(halfHourAgo);
     }
 

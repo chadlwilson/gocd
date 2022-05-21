@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
@@ -33,6 +31,9 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.GoConstants;
 import org.joda.time.DateTime;
+
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class ModificationsMother {
     public static final String MOD_COMMENT = "Fixing the not checked in files";
@@ -325,6 +326,10 @@ public class ModificationsMother {
 
     public static Modification checkinWithComment(String revision, String comment, Date checkinTime, String... files) {
         return checkinWithComment(revision, comment, MOD_USER_COMMITTER, EMAIL_ADDRESS, checkinTime, files);
+    }
+
+    public static Modification checkinWithComment(String revision, String comment, ZonedDateTime checkinTime, String... files) {
+        return checkinWithComment(revision, comment, MOD_USER_COMMITTER, EMAIL_ADDRESS, Date.from(checkinTime.toInstant()), files);
     }
 
     public static Modification checkinWithComment(String revision, String comment, String user, String email, Date checkinTime, String... files) {

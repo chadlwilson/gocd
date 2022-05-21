@@ -28,7 +28,6 @@ dependencies {
   implementation project.deps.commonsText
   implementation project.deps.cloning
   implementation project.deps.jdom
-  implementation project.deps.jodaTime
   implementation project.deps.springTx
   api project.deps.semanticVersion
   compileOnly project.deps.jetBrainsAnnotations

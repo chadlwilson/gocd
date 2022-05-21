@@ -15,24 +15,23 @@
  */
 package com.thoughtworks.go.util;
 
-import java.text.SimpleDateFormat;
-
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.VisibleForTesting;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.context.MessageSourceResolvable;
+import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
+
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import static com.thoughtworks.go.util.DateUtils.formatISO8601;
 
 @Component
@@ -104,26 +103,22 @@ public class TimeConverter {
                 new TimeConverter.AboutOneYear());
     }
 
-    public ConvertedTime getConvertedTime(long duration) {
+    public ConvertedTime getConvertedTime(long durationSeconds) {
         Set<Seconds> keys = RULES.keySet();
         for (Seconds seconds : keys) {
-            if (duration <= seconds.getSeconds()) {
-                return RULES.get(seconds).getConvertedTime(duration);
+            if (durationSeconds <= seconds.getSeconds()) {
+                return RULES.get(seconds).getConvertedTime(durationSeconds);
             }
         }
-        return new TimeConverter.OverTwoYears().getConvertedTime(duration);
+        return new TimeConverter.OverTwoYears().getConvertedTime(durationSeconds);
     }
 
     public ConvertedTime getConvertedTime(Date dateFrom) {
-        return dateFrom == null ? ConvertedTime.NOT_AVAILABLE : getConvertedTime(dateFrom, new Date());
+        return dateFrom == null ? ConvertedTime.NOT_AVAILABLE : getConvertedTime(dateFrom.toInstant(), Instant.now());
     }
 
-    public ConvertedTime getConvertedTime(String defaultMessage) {
-        return new ConvertedTime(defaultMessage);
-    }
-
-    public static String getHumanReadableDate(DateTime date) {
-        String dateString = getDateFormatterWithTimeZone().format(date.toDate());
+    public static String getHumanReadableDate(Instant instant) {
+        String dateString = getDateFormatterWithTimeZone().format(Date.from(instant));
         int colonPlace = dateString.length() - 2;
         return dateString.substring(0, colonPlace) + ":" + dateString.substring(colonPlace);
     }
@@ -141,12 +136,12 @@ public class TimeConverter {
         return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatterWithTimeZone.print(new DateTime(date));
     }
 
-    public ConvertedTime getConvertedTime(Date dateLogFileGenerated, Date dateCheckTheDuration) {
-        if (dateCheckTheDuration.getTime() < dateLogFileGenerated.getTime()) {
-            String dateString = getHumanReadableDate(new DateTime(dateLogFileGenerated));
-            return new ConvertedTime(dateString);
+    @VisibleForTesting
+    ConvertedTime getConvertedTime(Instant dateLogFileGenerated, Instant dateCheckTheDuration) {
+        if (dateCheckTheDuration.isBefore(dateLogFileGenerated)) {
+            return new ConvertedTime(getHumanReadableDate(dateLogFileGenerated));
         } else {
-            return getConvertedTime((dateCheckTheDuration.getTime() - dateLogFileGenerated.getTime()) / 1000);
+            return getConvertedTime(ChronoUnit.SECONDS.between(dateLogFileGenerated, dateCheckTheDuration));
         }
     }
 

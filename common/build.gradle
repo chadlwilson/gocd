@@ -31,7 +31,6 @@ dependencies {
   api project.deps.commonsCollections4
   api project.deps.commonsText
   api project.deps.springTx
-  implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 

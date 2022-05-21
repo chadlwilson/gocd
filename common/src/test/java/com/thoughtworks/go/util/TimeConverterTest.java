@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.util;
 
-import java.util.Date;
-
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,11 +33,10 @@ public class TimeConverterTest {
 
     @Test
     public void testShouldReturn() {
-        DateTime now = new DateTime();
-        DateTime yesterday = now.minusDays(1);
-        assertEquals(new TimeConverter.ConvertedTime(TimeConverter.getHumanReadableDate(now)),
-                timeConverter
-                        .getConvertedTime(now.toDate(), yesterday.toDate()));
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime yesterday = now.minusDays(1);
+        assertEquals(new TimeConverter.ConvertedTime(TimeConverter.getHumanReadableDate(now.toInstant())),
+                timeConverter.getConvertedTime(now.toInstant(), yesterday.toInstant()));
     }
 
     @Test

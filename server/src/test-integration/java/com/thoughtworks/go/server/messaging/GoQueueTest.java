@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.thoughtworks.go.util.Assertions.assertWillHappen;
+import static com.thoughtworks.go.util.FutureAssertions.assertWillHappen;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)

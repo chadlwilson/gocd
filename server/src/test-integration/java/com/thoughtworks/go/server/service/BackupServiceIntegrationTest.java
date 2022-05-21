@@ -41,9 +41,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +55,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
@@ -66,10 +68,10 @@ import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -81,6 +83,7 @@ import static org.mockito.Mockito.*;
 })
 public class BackupServiceIntegrationTest {
 
+    public static final DateTimeFormatter BACKUP_DIR_FORMAT = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     BackupService backupService;
     @Autowired
     GoConfigService goConfigService;
@@ -263,8 +266,8 @@ public class BackupServiceIntegrationTest {
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
-        when(timeProvider.currentDateTime()).thenReturn(now);
+        Instant now = Instant.now();
+        when(timeProvider.currentInstant()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, null);
@@ -289,8 +292,7 @@ public class BackupServiceIntegrationTest {
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
-        when(timeProvider.currentDateTime()).thenReturn(now);
+        when(timeProvider.currentInstant()).thenReturn(Instant.now());
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, null);
@@ -311,9 +313,8 @@ public class BackupServiceIntegrationTest {
         when(configService.getMailSender()).thenReturn(goMailSender);
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
-        DateTime now = new DateTime();
         TimeProvider timeProvider = mock(TimeProvider.class);
-        when(timeProvider.currentDateTime()).thenReturn(now);
+        when(timeProvider.currentInstant()).thenReturn(Instant.now());
 
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
@@ -344,9 +345,8 @@ public class BackupServiceIntegrationTest {
         when(configService.getMailSender()).thenReturn(goMailSender);
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
-        DateTime now = new DateTime();
         TimeProvider timeProvider = mock(TimeProvider.class);
-        when(timeProvider.currentDateTime()).thenReturn(now);
+        when(timeProvider.currentInstant()).thenReturn(Instant.now());
 
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
@@ -398,11 +398,10 @@ public class BackupServiceIntegrationTest {
         backupThd.start();
         waitForBackupToStart.acquire();
         String backupStartedTimeString = backupService.backupRunningSinceISO8601().get();
-        DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
-        DateTime backupTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
+        ZonedDateTime backupTime = DateTimeFormatter.ISO_DATE_TIME.parse(backupStartedTimeString, ZonedDateTime::from);
 
         ServerBackup runningBackup = (ServerBackup) ReflectionUtil.getField(backupService, "runningBackup");
-        assertThat(new DateTime(runningBackup.getTime()), is(backupTime));
+        Assertions.assertThat(runningBackup.getTime()).hasSameTimeAs(Date.from(backupTime.toInstant()));
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
     }
@@ -463,8 +462,8 @@ public class BackupServiceIntegrationTest {
         when(configService.adminEmail()).thenReturn("mail@admin.com");
         when(configService.isUserAdmin(admin)).thenReturn(true);
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
-        when(timeProvider.currentDateTime()).thenReturn(now);
+        Instant now = Instant.now();
+        when(timeProvider.currentInstant()).thenReturn(now);
 
         final MessageCollectingBackupUpdateListener backupUpdateListener = new MessageCollectingBackupUpdateListener(waitForBackupToComplete);
 
@@ -491,8 +490,8 @@ public class BackupServiceIntegrationTest {
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
-        when(timeProvider.currentDateTime()).thenReturn(now);
+        Instant now = Instant.now();
+        when(timeProvider.currentInstant()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, null);
@@ -597,8 +596,8 @@ public class BackupServiceIntegrationTest {
         return new File(new SystemEnvironment().getConfigDir());
     }
 
-    private File backupDir(DateTime now) {
-        return new File(backupsDirectory, BackupService.BACKUP + now.toString("YYYYMMdd-HHmmss"));
+    private File backupDir(Instant now) {
+        return new File(backupsDirectory, BackupService.BACKUP + BACKUP_DIR_FORMAT.format(now));
     }
 
     private File backedUpFile(final String filename) {

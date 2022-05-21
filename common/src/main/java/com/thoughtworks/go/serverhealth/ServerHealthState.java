@@ -21,8 +21,8 @@ import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class ServerHealthState {
     private final String message;
     private final String description;
     static Clock clock = new SystemTimeClock();
-    private DateTime expiryTime;
+    private Instant expiryTime;
     public static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("MMM-dd HH:mm:ss");
     private Date timestamp;
 
@@ -220,7 +220,7 @@ public class ServerHealthState {
     }
 
     public boolean hasExpired() {
-        return expiryTime != null && expiryTime.isBefore(clock.currentDateTime());
+        return expiryTime != null && expiryTime.isBefore(clock.currentInstant());
     }
 
     public Set<String> getPipelineNames(CruiseConfig config) {

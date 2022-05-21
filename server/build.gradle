@@ -873,7 +873,6 @@ task verifyWar(type: VerifyJarTask) {
         "jaxen-${project.versions.jaxen}.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
         "jdom2-${project.versions.jdom}.jar",
-        "joda-time-${project.versions.jodaTime}.jar",
         "jolt-core-${project.versions.jolt}.jar",
         "jruby-complete-${project.versions.jruby}.jar",
         "jruby-rack-${project.versions.rack}.jar",

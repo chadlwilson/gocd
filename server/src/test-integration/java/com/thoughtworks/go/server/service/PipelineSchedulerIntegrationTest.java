@@ -37,7 +37,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.Assertions;
+import com.thoughtworks.go.util.FutureAssertions;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
@@ -135,7 +135,7 @@ public class PipelineSchedulerIntegrationTest {
         serverHealthService.update(ServerHealthState.failToScheduling(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, "should wait till cleared"));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.message(), operationResult.canContinue(),is(true));
-        Assertions.waitUntil(Timeout.ONE_MINUTE, new BooleanSupplier() {
+        FutureAssertions.waitUntil(Timeout.ONE_MINUTE, new BooleanSupplier() {
             @Override
             public boolean getAsBoolean() {
                 return serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0;

@@ -175,7 +175,6 @@ task verifyJar(type: VerifyJarTask) {
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jcommander-${project.versions.jcommander}.jar",
       "jdom2-${project.versions.jdom}.jar",
-      "joda-time-${project.versions.jodaTime}.jar",
       "jolt-core-${project.versions.jolt}.jar",
       "json-utils-${project.versions.jolt}.jar",
       "jsr305-3.0.2.jar",

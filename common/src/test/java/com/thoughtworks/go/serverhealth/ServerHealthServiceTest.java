@@ -28,11 +28,12 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Set;
 
@@ -69,8 +70,8 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveExpiredLogMessages() throws Exception {
-        testingClock.setTime(new DateTime(2002,10,10,10,10,10,10));
+    public void shouldRemoveExpiredLogMessages() {
+        testingClock.setTime(ZonedDateTime.of(2002,10,10,10,10, 10, 10_000, ZoneId.systemDefault()).toInstant());
         ServerHealthState expiresInNintySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Timeout.NINETY_SECONDS);
         ServerHealthState expiresInThreeMins = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Timeout.THREE_MINUTES);
         ServerHealthState expiresNever = warning("hg-message3", "description", HealthStateType.artifactsDiskFull(), Timeout.NEVER);
@@ -94,7 +95,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveErrorLogWhenCorrespondingMaterialIsMissing() throws Exception {
+    public void shouldRemoveErrorLogWhenCorrespondingMaterialIsMissing() {
         serverHealthService.update(ServerHealthState.error("hg-message", "description", HealthStateType.general(forMaterial(MaterialsMother.hgMaterial()))));
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         serverHealthService.update(ServerHealthState.error("svn-message", "description", HealthStateType.general(forMaterialConfig(svnMaterialConfig))));
@@ -105,7 +106,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveErrorLogWhenCorrespondingPipelineIsMissing() throws Exception {
+    public void shouldRemoveErrorLogWhenCorrespondingPipelineIsMissing() {
         serverHealthService.update(ServerHealthState.error("message", "description", pipelineId));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline("other"))));
 
@@ -114,7 +115,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveErrorLogWhenCorrespondingGroupIsMissing() throws Exception {
+    public void shouldRemoveErrorLogWhenCorrespondingGroupIsMissing() {
         serverHealthService.update(ServerHealthState.error("message", "description", groupId));
 
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
@@ -122,7 +123,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldReturnErrorLogs() throws Exception {
+    public void shouldReturnErrorLogs() {
         serverHealthService.update(ServerHealthState.error("message", "description", pipelineId));
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -132,7 +133,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldUpdateLogInServerHealth() throws Exception {
+    public void shouldUpdateLogInServerHealth() {
         ServerHealthState serverHealthState = ServerHealthState.error("message", "description", globalId);
         serverHealthService.update(serverHealthState);
         ServerHealthState newServerHealthState = ServerHealthState.error("updated message", "updated description", globalId);
@@ -143,7 +144,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldAddMultipleLogToServerHealth() throws Exception {
+    public void shouldAddMultipleLogToServerHealth() {
         assertThat(serverHealthService.update(ServerHealthState.error("message", "description", globalId)), is(globalId));
         assertThat(serverHealthService.update(ServerHealthState.error("message", "description", pipelineId)), is(pipelineId));
 
@@ -153,7 +154,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveLogWhenUpdateIsFine() throws Exception {
+    public void shouldRemoveLogWhenUpdateIsFine() {
         serverHealthService.update(ServerHealthState.error("message", "description", globalId));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(globalId));
 
@@ -162,7 +163,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveLogByCategoryFromServerHealth() throws Exception {
+    public void shouldRemoveLogByCategoryFromServerHealth() {
         HealthStateScope scope = forPipeline(PIPELINE_NAME);
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(scope)));

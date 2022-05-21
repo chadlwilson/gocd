@@ -182,7 +182,7 @@ public class StageServiceIntegrationTest {
             }
         });
 
-        Assertions.waitUntil(Timeout.TEN_SECONDS, () -> receivedResult != null && receivedState != null && receivedStageResult != null);
+        FutureAssertions.waitUntil(Timeout.TEN_SECONDS, () -> receivedResult != null && receivedState != null && receivedStageResult != null);
         assertThat(receivedState, is(JobState.Completed));
         assertThat(receivedResult, is(JobResult.Cancelled));
         assertThat(receivedStageResult, is(StageResult.Cancelled));

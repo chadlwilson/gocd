@@ -23,7 +23,7 @@ import static com.thoughtworks.go.util.Timeout.TWENTY_SECONDS;
 import static com.thoughtworks.go.util.Timeout.TWO_MINUTES;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class Assertions {
+public class FutureAssertions {
     public static <T> void assertWillHappen(T obj, Matcher<T> matcher) {
         assertWillHappen(obj, matcher, TWO_MINUTES);
     }
@@ -88,7 +88,7 @@ public class Assertions {
                     return;
                 }
             } catch (Exception caught) {
-                System.err.println("retrying after catching exception in Assertions.waitUntil: " + caught);
+                System.err.println("retrying after catching exception in FutureAssertions.waitUntil: " + caught);
                 e = caught;
             }
 

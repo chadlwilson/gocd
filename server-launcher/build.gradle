@@ -60,7 +60,6 @@ dependencies {
   packagingInLibDir project.deps.bouncyCastlePkix
   packagingInLibDir project.deps.commonsIO
   packagingInLibDir project.deps.commonsLang3
-  packagingInLibDir project.deps.jodaTime
 
   // Not needed for compilation, but we want to centralize all logging using logback
   packagingInLibDir project.deps.slf4j
@@ -221,7 +220,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-util-ajax-${project.versions.jetty}.jar",
       "jetty-webapp-${project.versions.jetty}.jar",
       "jetty-xml-${project.versions.jetty}.jar",
-      "joda-time-${project.versions.jodaTime}.jar",
       "jul-to-slf4j-${project.versions.slf4j}.jar",
       "log4j-over-slf4j-${project.versions.slf4j}.jar",
       "logback-classic-${project.versions.logback}.jar",

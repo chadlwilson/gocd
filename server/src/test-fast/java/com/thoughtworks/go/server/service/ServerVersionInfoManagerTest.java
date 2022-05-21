@@ -21,10 +21,10 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemTimeClock;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -150,14 +150,14 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldGetVersionInfoIflatestVersionIsBeingUpdatedForMoreThanHalfAnHour(){
+    public void shouldGetVersionInfoIfLatestVersionIsBeingUpdatedForMoreThanHalfAnHour(){
         SystemTimeClock systemTimeClock = mock(SystemTimeClock.class);
-        Date yesterday = new Date(System.currentTimeMillis() - 24*60*60*1000);
-        DateTime halfAnHourFromNow = new DateTime(System.currentTimeMillis() - 35 * 60 * 1000);
-        VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), yesterday);
+        ZonedDateTime yesterday = ZonedDateTime.now().minusDays(1);
+        ZonedDateTime halfAnHourFromNow = ZonedDateTime.now().minusMinutes(35);
+        VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), Date.from(yesterday.toInstant()));
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
-        when(systemTimeClock.currentDateTime()).thenReturn(halfAnHourFromNow);
+        when(systemTimeClock.currentInstant()).thenReturn(halfAnHourFromNow.toInstant());
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
         manager.initialize();

@@ -15,12 +15,10 @@
  */
 package com.thoughtworks.go.util;
 
-import org.joda.time.DateTime;
-
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +26,7 @@ import static java.time.Instant.ofEpochMilli;
 import static java.time.ZoneId.systemDefault;
 
 public class TestingClock implements Clock {
-    private Date currentTime;
+    private Instant currentTime;
     private List<Long> sleeps = new ArrayList<>();
 
     public TestingClock() {
@@ -36,17 +34,17 @@ public class TestingClock implements Clock {
     }
 
     public TestingClock(Date date) {
-        this.currentTime = date;
+        this.currentTime = date.toInstant();
     }
 
     @Override
     public Date currentTime() {
-        return currentTime;
+        return Date.from(currentTime);
     }
 
     @Override
-    public DateTime currentDateTime() {
-        return new DateTime(currentTime);
+    public Instant currentInstant() {
+        return currentTime;
     }
 
     @Override
@@ -61,7 +59,7 @@ public class TestingClock implements Clock {
 
     @Override
     public long currentTimeMillis() {
-        return currentTime.getTime();
+        return currentTime.toEpochMilli();
     }
 
     @Override
@@ -75,41 +73,25 @@ public class TestingClock implements Clock {
     }
 
     @Override
-    public DateTime timeoutTime(Timeout timeout) {
+    public Instant timeoutTime(Timeout timeout) {
         return timeoutTime(timeout.inMillis());
     }
 
     @Override
-    public DateTime timeoutTime(long milliSeconds) {
-        return new DateTime(addDuration(Calendar.MILLISECOND, (int) milliSeconds));
-    }
-
-    public void addYears(int numberOfYears) {
-        add(Calendar.YEAR, numberOfYears);
+    public Instant timeoutTime(long milliSeconds) {
+        return currentTime.plusMillis(milliSeconds);
     }
 
     public void addSeconds(int numberOfSeconds) {
-        add(Calendar.SECOND, numberOfSeconds);
-    }
-
-    private void add(int axis, int duration) {
-        currentTime = addDuration(axis, duration);
-    }
-
-    private Date addDuration(int axis, int duration) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentTime);
-        calendar.add(axis, duration);
-        Date date = calendar.getTime();
-        return date;
+        currentTime = currentTime.plusSeconds(numberOfSeconds);
     }
 
     public void setTime(Date date) {
-        currentTime = date;
+        setTime(date.toInstant());
     }
 
-    public void setTime(DateTime dateTime) {
-        setTime(dateTime.toDate());
+    public void setTime(Instant instant) {
+        currentTime = instant;
     }
 
     public List<Long> getSleeps() {
@@ -117,6 +99,6 @@ public class TestingClock implements Clock {
     }
 
     public void addMillis(int millis) {
-        add(Calendar.MILLISECOND, millis);
+        currentTime = currentTime.plusMillis(millis);
     }
 }
