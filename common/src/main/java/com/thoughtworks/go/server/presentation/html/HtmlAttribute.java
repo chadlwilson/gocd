@@ -22,6 +22,7 @@ public class HtmlAttribute {
     public static HtmlAttribute onclick(String s) { return new HtmlAttribute("onclick", s); }
     public static HtmlAttribute style(String style) { return new HtmlAttribute("style", style); }
     public static HtmlAttribute href(String href) { return new HrefHtmlAttribute(href); }
+    public static HtmlAttribute title(String title) { return new HtmlAttribute("title", title); }
 
     final String key;
     final String value;

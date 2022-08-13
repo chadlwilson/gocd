@@ -15,12 +15,14 @@
  -->
 <#-- @ftlvariable name="artifacts_extra_attrs" type="java.lang.String" -->
 <div class="widget container-in-body" id="tab-content-of-artifacts" ${artifacts_extra_attrs}>
-    <#if presenter.artifactFiles??>
-        <#if presenter.artifactFiles?size > 0>
-          <div class="artifacts-operations-container">
-            <a class="collapse-all" onclick="BuildDetail.expandAll()">(+) Expand All</a> <a class="expand-all" onclick="BuildDetail.collapseAll()">(-) Collapse All</a>
-          </div>
-        </#if>
+    <#if presenter.hasArtifacts() >
+        <div class="artifacts-operations-container">
+            <a class="collapse-all" onclick="BuildDetail.expandAll()">(+) Expand All</a>
+            <a class="expand-all" onclick="BuildDetail.collapseAll()">(-) Collapse All</a>
+            <a href="${presenter.getArtifactUrlAsZip(req.getContextPath())}" title="Download all artifacts (zipped)">
+                <span class="download_directory">&nbsp;</span>
+            </a>
+        </div>
     </#if>
   <div class="files">
       <#include "../shared/_artifacts.ftlh">

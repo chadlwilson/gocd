@@ -326,6 +326,7 @@ a.collapse-all {
   margin-right: 0.5em;
   padding: 0.1em 0 0.1em 0.5em;
   float: right;
+  display: inline-block;
 }
 
 a.save:hover,
@@ -780,7 +781,7 @@ span.has-icon {
 }
 
 .directory {
-  display: block;
+  display: inline-block;
   padding-left: 22px;
   margin-bottom: 0.3em;
   background-image: image_url("directory.gif");
@@ -791,6 +792,14 @@ span.has-icon {
   padding-left: 22px;
   background-image: image_url("opened_directory.gif");
   background-repeat: no-repeat;
+}
+
+.download_directory {
+  float: right;
+  display: inline-block;
+  background-image: image_url("archive_download.svg");
+  background-repeat: no-repeat;
+  width: 24px;
 }
 
 #yui-main h1.division-header {

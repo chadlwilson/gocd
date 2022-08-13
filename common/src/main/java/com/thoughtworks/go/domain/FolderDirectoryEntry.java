@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.server.presentation.html.HtmlAttribute;
 import com.thoughtworks.go.server.presentation.html.HtmlElement;
 import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -38,14 +40,17 @@ public class FolderDirectoryEntry extends DirectoryEntry {
     @Override
     protected HtmlRenderable htmlBody() {
         return sequence(
-                HtmlElement.div(cssClass("dir-container")).content(
-                    HtmlElement.span(cssClass("directory")).content(
-                        HtmlElement.a(onclick("BuildDetail.tree_navigator(this)"))
-                                .safecontent(getFileName())
-                    )
+            HtmlElement.div(cssClass("dir-container")).content(
+                HtmlElement.span(cssClass("directory")).content(
+                    HtmlElement.a(onclick("BuildDetail.tree_navigator(this)")).safecontent(getFileName())
                 ),
-                HtmlElement.div(cssClass("subdir-container"), style("display:none"))
-                        .content(subDirectory)
+                StringUtils.isBlank(getUrl())
+                    ? HtmlElement.span()
+                    : HtmlElement.a(HtmlAttribute.href(getUrl() + ".zip"), HtmlAttribute.title("Download \"" + getFileName() + "\" (zipped)"))
+                    .content(HtmlElement.span(cssClass("download_directory")).unsafecontent("&nbsp")
+                    )
+            ),
+            HtmlElement.div(cssClass("subdir-container"), style("display:none")).content(subDirectory)
         );
     }
 

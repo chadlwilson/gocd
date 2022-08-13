@@ -119,6 +119,10 @@ public class JobDetailPresentationModel {
         return renderer.asString();
     }
 
+    public boolean hasArtifacts() throws IllegalArtifactLocationException {
+        return new DirectoryReader(jobIdentifier).listEntries(artifactsService.findArtifact(jobIdentifier, ""), "").size() > 0;
+    }
+
     public DirectoryEntries getArtifactFiles(final DirectoryReader directoryReader) throws IllegalArtifactLocationException {
         return new DirectoryEntries() {{
             if (!job.isCompleted()) {
@@ -129,6 +133,10 @@ public class JobDetailPresentationModel {
             addAll(directoryReader.listEntries(artifactsService.findArtifact(jobIdentifier, ""), ""));
             setIsArtifactsDeleted(stage.isArtifactsDeleted());
         }};
+    }
+
+    public String getArtifactUrlAsZip(String requestContextPath) {
+        return String.format("%s%s/.zip", requestContextPath, artifactsService.findArtifactUrl(jobIdentifier));
     }
 
     public ModificationVisitor getModificationSummaries() {
