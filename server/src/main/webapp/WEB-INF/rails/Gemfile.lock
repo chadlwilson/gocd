@@ -98,7 +98,7 @@ GEM
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    mail (2.8.0)
+    mail (2.8.0.1)
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
@@ -108,7 +108,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.16.3)
-    net-imap (0.3.2)
+    net-imap (0.3.4)
       date
       net-protocol
     net-pop (0.1.2)
@@ -197,6 +197,8 @@ GEM
     sass-embedded (1.57.1)
       google-protobuf (~> 3.21)
       rake (>= 10.0.0)
+    sass-embedded (1.57.1-x86_64-linux-gnu)
+      google-protobuf (~> 3.21)
     sassc-embedded (1.54.0)
       sass-embedded (~> 1.54)
       sassc (~> 2.0)
