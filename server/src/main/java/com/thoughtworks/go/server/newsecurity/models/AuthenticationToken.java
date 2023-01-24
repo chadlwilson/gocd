@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.newsecurity.models;
 
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
-import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 public class AuthenticationToken<T extends Credentials> {

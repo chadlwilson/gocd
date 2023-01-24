@@ -25,8 +25,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;

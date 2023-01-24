@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

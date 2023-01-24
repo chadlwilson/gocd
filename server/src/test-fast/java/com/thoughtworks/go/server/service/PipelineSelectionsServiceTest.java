@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.user.*;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
-import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;

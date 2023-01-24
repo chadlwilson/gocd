@@ -16,7 +16,6 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.domain.AccessToken;
-import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class AccessTokenMother {

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,12 +57,12 @@ public class StageTest {
             }
 
             @Override
-            public DateTime currentDateTime() {
+            public ZonedDateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
             @Override
-            public DateTime timeoutTime(Timeout timeout) {
+            public ZonedDateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }
         };
@@ -210,12 +211,12 @@ public class StageTest {
             }
 
             @Override
-            public DateTime currentDateTime() {
+            public ZonedDateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
             @Override
-            public DateTime timeoutTime(Timeout timeout) {
+            public ZonedDateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }
         };

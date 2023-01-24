@@ -54,7 +54,6 @@ import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.ui.StageSummaryModel;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

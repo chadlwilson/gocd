@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

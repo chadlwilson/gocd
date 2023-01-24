@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.util.Clock;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

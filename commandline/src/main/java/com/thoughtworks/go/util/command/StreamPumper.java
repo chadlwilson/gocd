@@ -20,8 +20,6 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;

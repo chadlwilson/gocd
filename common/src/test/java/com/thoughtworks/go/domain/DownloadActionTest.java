@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

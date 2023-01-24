@@ -21,14 +21,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Properties;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class TempFilesTest {
+    private final Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     TempFiles files;
     private Properties original;
 
@@ -77,7 +81,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldForgetFolders() throws IOException {
+    public void shouldForgetFolders() {
         File file = files.mkdir("foo");
 
         files.cleanUp();
@@ -97,7 +101,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateDirsInTempDirectory() throws IOException {
+    public void shouldCreateDirsInTempDirectory() {
         File dir = files.mkdir("foo");
         File parentFile = dir.getParentFile();
         assertThat(parentFile.getName(), is("cruise"));
@@ -105,16 +109,15 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateUniqueFilesEveryTime() throws IOException {
-        TestingClock clock = new TestingClock();
-        files.setClock(clock);
+    public void shouldCreateUniqueFilesEveryTime() {
+        files.setClock(fixedClock);
         File file1 = files.createUniqueFile("foo");
         File file2 = files.createUniqueFile("foo");
         assertThat(file1, not(file2));
     }
 
     @Test
-    public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() throws IOException {
+    public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() {
         String newTmpDir = original.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID();
         System.setProperty("java.io.tmpdir", newTmpDir);
         File file = files.createUniqueFile("foo");
@@ -122,11 +125,11 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateUniqueFolders() throws IOException {
-        TestingClock clock = new TestingClock();
-        files.setClock(clock);
+    public void shouldCreateUniqueFolders() {
+        files.setClock(fixedClock);
         File file1 = files.createUniqueFolder("foo");
-        clock.addSeconds(1);
+
+        files.setClock(Clock.fixed(fixedClock.instant().plusSeconds(1), ZoneId.systemDefault()));
         File file2 = files.createUniqueFolder("foo");
         assertThat(file2, not(file1));
     }

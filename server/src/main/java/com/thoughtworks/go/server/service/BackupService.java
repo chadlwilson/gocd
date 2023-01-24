@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -189,7 +190,7 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private ServerBackup createServerBackup(Username username) {
-        DateTime backupTime = timeProvider.currentDateTime();
+        ZonedDateTime backupTime = timeProvider.currentDateTime();
         ServerBackup serverBackup = new ServerBackup(getBackupDir(backupTime).getAbsolutePath(), backupTime.toDate(), username.getUsername().toString(), "Backup scheduled");
         serverBackup = serverBackupRepository.save(serverBackup);
         return serverBackup;
@@ -225,7 +226,7 @@ public class BackupService implements BackupStatusProvider {
         listeners.forEach(listener -> listener.completed(message));
     }
 
-    private File getBackupDir(DateTime backupTime) {
+    private File getBackupDir(ZonedDateTime backupTime) {
         return new File(backupLocation(), BACKUP + backupTime.toString("YYYYMMdd-HHmmss"));
     }
 

@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.JobTypeConfig;
 import com.thoughtworks.go.config.SingleJobTypeConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.util.Clock;
 
 /**
  * @understands how to match job instances associated Jobs that have a single instance

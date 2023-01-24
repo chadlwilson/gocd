@@ -39,6 +39,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -144,7 +145,7 @@ public class BackupServiceTest {
     public void shouldScheduleBackupAsynchronously() {
         Username username = mock(Username.class);
         CaseInsensitiveString user = new CaseInsensitiveString("admin");
-        DateTime backupTime = new DateTime(2019, 2, 19, 0, 0, DateTimeZone.UTC);
+        ZonedDateTime backupTime = new DateTime(2019, 2, 19, 0, 0, DateTimeZone.UTC);
         ArgumentCaptor<StartServerBackupMessage> captor = ArgumentCaptor.forClass(StartServerBackupMessage.class);
         String expectedBackupPath = new File("backup_path/backup_20190219-000000").getAbsolutePath();
         ServerBackup expectedBackup = new ServerBackup(expectedBackupPath, backupTime.toDate(), user.toString(), "Backup scheduled");

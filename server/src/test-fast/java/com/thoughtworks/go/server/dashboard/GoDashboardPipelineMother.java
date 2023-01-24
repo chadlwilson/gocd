@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.security.permissions.EveryonePermission;
 import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
-import com.thoughtworks.go.util.SystemTimeClock;
 
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
 

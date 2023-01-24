@@ -20,11 +20,11 @@ import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemTimeClock;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -153,7 +153,7 @@ public class ServerVersionInfoManagerTest {
     public void shouldGetVersionInfoIflatestVersionIsBeingUpdatedForMoreThanHalfAnHour(){
         SystemTimeClock systemTimeClock = mock(SystemTimeClock.class);
         Date yesterday = new Date(System.currentTimeMillis() - 24*60*60*1000);
-        DateTime halfAnHourFromNow = new DateTime(System.currentTimeMillis() - 35 * 60 * 1000);
+        ZonedDateTime halfAnHourFromNow = new DateTime(System.currentTimeMillis() - 35 * 60 * 1000);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), yesterday);
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.util.SystemTimeClock;
-
 import java.time.LocalDateTime;
 
 import static java.lang.Math.round;

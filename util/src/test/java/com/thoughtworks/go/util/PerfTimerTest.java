@@ -18,16 +18,21 @@ package com.thoughtworks.go.util;
 import ch.qos.logback.classic.Level;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 public class PerfTimerTest {
 
+    private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+
     @Test
-    public void shouldRecordElapsedTime() throws Exception {
-        TestingClock clock = new TestingClock();
+    public void shouldRecordElapsedTime() {
 
         PerfTimer timer = PerfTimer.start("Message", clock);
         clock.addSeconds(1);
@@ -37,10 +42,10 @@ public class PerfTimerTest {
     }
 
     @Test
-    public void shouldRecordElapsedTimeForDifferentTimes() throws Exception {
-        TestingClock clock = new TestingClock();
-
+    public void shouldRecordElapsedTimeForDifferentTimes() {
         PerfTimer timer = PerfTimer.start("Message", clock);
+
+        clock.
 
         clock.addSeconds(1);
         clock.addSeconds(1);
@@ -50,9 +55,7 @@ public class PerfTimerTest {
     }
 
     @Test
-    public void shouldLogTimeWithMessage() throws Exception {
-        TestingClock clock = new TestingClock();
-
+    public void shouldLogTimeWithMessage() {
         PerfTimer timer = PerfTimer.start("Message", clock);
 
         clock.addSeconds(1);
@@ -64,9 +67,7 @@ public class PerfTimerTest {
     }
 
     @Test
-    public void shouldStopBeforeREportingElapsed() throws Exception {
-        TestingClock clock = new TestingClock();
-
+    public void shouldStopBeforeREportingElapsed() {
         PerfTimer timer = PerfTimer.start("Message", clock);
 
         clock.addSeconds(1);

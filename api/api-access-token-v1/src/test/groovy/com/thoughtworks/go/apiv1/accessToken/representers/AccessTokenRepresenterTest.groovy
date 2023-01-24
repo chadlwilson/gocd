@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.accessToken.representers
 import com.thoughtworks.go.domain.AccessToken
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.util.SecureRandom
-import com.thoughtworks.go.util.TestingClock
+
 import org.junit.jupiter.api.Test
 
 import java.sql.Timestamp

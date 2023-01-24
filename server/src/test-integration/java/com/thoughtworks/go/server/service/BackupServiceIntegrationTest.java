@@ -57,6 +57,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -263,7 +264,7 @@ public class BackupServiceIntegrationTest {
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
+        ZonedDateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
@@ -289,7 +290,7 @@ public class BackupServiceIntegrationTest {
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
+        ZonedDateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
@@ -311,7 +312,7 @@ public class BackupServiceIntegrationTest {
         when(configService.getMailSender()).thenReturn(goMailSender);
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
-        DateTime now = new DateTime();
+        ZonedDateTime now = new DateTime();
         TimeProvider timeProvider = mock(TimeProvider.class);
         when(timeProvider.currentDateTime()).thenReturn(now);
 
@@ -344,7 +345,7 @@ public class BackupServiceIntegrationTest {
         when(configService.getMailSender()).thenReturn(goMailSender);
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
-        DateTime now = new DateTime();
+        ZonedDateTime now = new DateTime();
         TimeProvider timeProvider = mock(TimeProvider.class);
         when(timeProvider.currentDateTime()).thenReturn(now);
 
@@ -463,7 +464,7 @@ public class BackupServiceIntegrationTest {
         when(configService.adminEmail()).thenReturn("mail@admin.com");
         when(configService.isUserAdmin(admin)).thenReturn(true);
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
+        ZonedDateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         final MessageCollectingBackupUpdateListener backupUpdateListener = new MessageCollectingBackupUpdateListener(waitForBackupToComplete);
@@ -491,7 +492,7 @@ public class BackupServiceIntegrationTest {
         when(configService.isUserAdmin(admin)).thenReturn(true);
 
         TimeProvider timeProvider = mock(TimeProvider.class);
-        DateTime now = new DateTime();
+        ZonedDateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
@@ -597,7 +598,7 @@ public class BackupServiceIntegrationTest {
         return new File(new SystemEnvironment().getConfigDir());
     }
 
-    private File backupDir(DateTime now) {
+    private File backupDir(ZonedDateTime now) {
         return new File(backupsDirectory, BackupService.BACKUP + now.toString("YYYYMMdd-HHmmss"));
     }
 

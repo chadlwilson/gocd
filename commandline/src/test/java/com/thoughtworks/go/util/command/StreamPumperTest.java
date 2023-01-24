@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

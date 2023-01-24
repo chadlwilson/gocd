@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
-import com.thoughtworks.go.util.Clock;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;

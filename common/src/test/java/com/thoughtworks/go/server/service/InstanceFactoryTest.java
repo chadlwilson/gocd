@@ -30,6 +30,7 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -237,12 +238,12 @@ class InstanceFactoryTest {
             }
 
             @Override
-            public DateTime currentDateTime() {
+            public ZonedDateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
             @Override
-            public DateTime timeoutTime(Timeout timeout) {
+            public ZonedDateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }
         };

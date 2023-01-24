@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.util.Clock;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.binary.Hex;

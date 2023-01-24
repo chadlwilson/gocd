@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jetbrains.annotations.TestOnly;
 import org.joda.time.Duration;

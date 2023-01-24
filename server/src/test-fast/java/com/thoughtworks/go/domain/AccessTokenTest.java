@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.Test;
 

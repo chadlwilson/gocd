@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.util.SystemTimeClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

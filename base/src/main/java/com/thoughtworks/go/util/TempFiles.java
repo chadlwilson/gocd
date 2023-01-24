@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class TempFiles {
     private Runnable cleanupHook = this::cleanUp;
 
     public TempFiles() {
-        this.clock = new SystemTimeClock();
+        this.clock = Clock.systemDefaultZone();
         Runtime.getRuntime().addShutdownHook(new Thread(cleanupHook));
     }
 
@@ -71,7 +72,7 @@ public class TempFiles {
     }
 
     public File createUniqueFolder(String folder) {
-        return mkdir(folder + clock.currentTimeMillis());
+        return mkdir(folder + clock.millis());
     }
 
     public void setClock(Clock clock) {

@@ -18,11 +18,13 @@ package com.thoughtworks.go.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
+
 public class PerfTimer {
     private static final Logger LOG = LoggerFactory.getLogger(PerfTimer.class);
 
     public static PerfTimer start(String message) {
-        return start(message, new SystemTimeClock());
+        return start(message, Clock.systemDefaultZone());
     }
 
     static PerfTimer start(String message, Clock clock) {
@@ -43,12 +45,12 @@ public class PerfTimer {
     }
 
     private void start() {
-        startTime = clock.currentTimeMillis();
+        startTime = clock.millis();
     }
 
     public void stop() {
         if (startTime == 0) return;
-        elapsed = elapsed + (clock.currentTimeMillis() - startTime);
+        elapsed = elapsed + (clock.millis() - startTime);
         startTime = 0;
         LOG.info("Performance: {} took {}ms", message, elapsed());
     }

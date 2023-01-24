@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.util.Clock;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

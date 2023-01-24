@@ -15,10 +15,15 @@
  */
 package com.thoughtworks.go.util;
 
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.io.Serializable;
+import java.time.Clock;
 
-@Component
-public class TimeProvider extends SystemTimeClock implements Serializable {
+@Configuration
+public class TimeProvider {
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
+    }
 }

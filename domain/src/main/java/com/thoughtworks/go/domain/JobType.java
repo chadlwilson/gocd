@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.util.Clock;
 
 /**
  * @understands how to match job instances associated with different types of JobConfigs
