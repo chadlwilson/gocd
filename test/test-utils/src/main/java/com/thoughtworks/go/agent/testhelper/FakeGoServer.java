@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -32,6 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.EnumSet;
@@ -56,7 +55,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
             try (InputStream input = source.getInputStream()) {
                 MessageDigest digester = MessageDigest.getInstance("MD5");
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
-                    IOUtils.copy(digest, new NullOutputStream());
+                    digest.transferTo(OutputStream.nullOutputStream());
                 }
                 return Hexadecimals.toHexString(digester.digest()).toLowerCase();
             } catch (Exception e) {
@@ -66,14 +65,15 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
 
         public void copyTo(OutputStream outputStream) throws IOException {
             try (InputStream in = source.getInputStream()) {
-                IOUtils.copy(in, outputStream);
+                in.transferTo(outputStream);
             }
         }
 
-        // Because the resource can be a jarresource, which extracts to dir instead of a simple copy.
+        // Because the resource can be a jar resource, which extracts to dir instead of a simple copy.
         public void copyTo(File output) throws IOException {
             try (InputStream in = source.getInputStream()) {
-                FileUtils.copyToFile(in, output);
+                output.mkdirs();
+                Files.copy(in, output.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }

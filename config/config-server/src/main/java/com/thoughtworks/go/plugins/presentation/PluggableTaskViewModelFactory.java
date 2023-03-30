@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel;
 import com.thoughtworks.go.presentation.PluggableTaskViewModel;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,7 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
 
     private String loadTemplateFromClasspath(final String filepath, final TaskView view) {
         try(InputStream in = view.getClass().getResourceAsStream(filepath)) {
-            return in != null ? IOUtils.toString(in, UTF_8) : String.format("Template \"%s\" is missing.", filepath);
+            return in != null ? new String(in.readAllBytes(), UTF_8) : String.format("Template \"%s\" is missing.", filepath);
         } catch (IOException e) {
             LOG.error("Failed to load template from view from path \"{}\". Make sure your the template is on the classpath of your plugin", filepath, e);
             return String.format("Template \"%s\" failed to load.", filepath);

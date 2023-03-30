@@ -53,7 +53,7 @@ public class AssetsContextHandler extends ContextHandler {
     }
 
     class AssetsHandler extends AbstractHandler {
-        private ResourceHandler resourceHandler = new ResourceHandler();
+        private final ResourceHandler resourceHandler = new ResourceHandler();
 
         private AssetsHandler() {
             resourceHandler.setCacheControl("max-age=31536000,public");

@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.dashboard;
 import com.thoughtworks.go.server.domain.Username;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.security.DigestOutputStream;
@@ -89,7 +89,7 @@ public abstract class AbstractDashboardGroup implements DashboardGroup {
     protected String digest(String permissionsSegment) {
         try {
             MessageDigest digest = DigestUtils.getSha256Digest();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new DigestOutputStream(new NullOutputStream(), digest));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new DigestOutputStream(OutputStream.nullOutputStream(), digest));
             outputStreamWriter.write(getClass().getSimpleName());
             outputStreamWriter.write("$");
             outputStreamWriter.write(name());

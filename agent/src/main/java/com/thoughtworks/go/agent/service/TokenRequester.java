@@ -17,8 +17,6 @@ package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.NullInputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.RequestBuilder;
@@ -66,8 +64,11 @@ public class TokenRequester {
     }
 
     private String responseBody(CloseableHttpResponse response) throws IOException {
-        try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
-            return IOUtils.toString(is, StandardCharsets.UTF_8);
+        if (response.getEntity() == null) {
+            return "";
+        }
+        try (InputStream is = response.getEntity().getContent()) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 }

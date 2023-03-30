@@ -18,7 +18,6 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
-import org.apache.commons.io.IOUtils;
 import org.jdom2.input.SAXBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -68,7 +67,7 @@ public class SvnLogXmlParserTest {
 
     @Test
     public void shouldParseSvnLogContainingNullComments() throws IOException {
-        String xml = IOUtils.toString(getClass().getResource("jemstep_svn_log.xml"), UTF_8);
+        String xml = new String(getClass().getResourceAsStream("jemstep_svn_log.xml").readAllBytes(), UTF_8);
         SvnLogXmlParser parser = new SvnLogXmlParser();
         List<Modification> revisions = parser.parse(xml, "", new SAXBuilder());
 

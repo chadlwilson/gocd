@@ -17,7 +17,6 @@ package com.thoughtworks.go.agent.statusapi;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import fi.iki.elonen.NanoHTTPD;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +51,7 @@ class AgentStatusHttpdTest {
         NanoHTTPD.Response response = this.agentStatusHttpd.serve(session);
         assertThat(response.getStatus()).isEqualTo(NanoHTTPD.Response.Status.METHOD_NOT_ALLOWED);
         assertThat(response.getMimeType()).isEqualTo("text/plain; charset=utf-8");
-        assertThat(IOUtils.toString(response.getData(), StandardCharsets.UTF_8)).isEqualTo("This method is not allowed. Please use GET or HEAD.");
+        assertThat(new String(response.getData().readAllBytes(), StandardCharsets.UTF_8)).isEqualTo("This method is not allowed. Please use GET or HEAD.");
     }
 
     @Test
@@ -63,7 +62,7 @@ class AgentStatusHttpdTest {
         NanoHTTPD.Response response = this.agentStatusHttpd.serve(session);
         assertThat(response.getStatus()).isEqualTo(NanoHTTPD.Response.Status.NOT_FOUND);
         assertThat(response.getMimeType()).isEqualTo("text/plain; charset=utf-8");
-        assertThat(IOUtils.toString(response.getData(), StandardCharsets.UTF_8)).isEqualTo("The page you requested was not found");
+        assertThat(new String(response.getData().readAllBytes(), StandardCharsets.UTF_8)).isEqualTo("The page you requested was not found");
     }
 
     @Test
@@ -75,7 +74,7 @@ class AgentStatusHttpdTest {
         NanoHTTPD.Response response = this.agentStatusHttpd.serve(session);
         assertThat(response.getStatus()).isEqualTo(NanoHTTPD.Response.Status.OK);
         assertThat(response.getMimeType()).isEqualTo("text/plain; charset=utf-8");
-        assertThat(IOUtils.toString(response.getData(), StandardCharsets.UTF_8)).isEqualTo("OK!");
+        assertThat(new String(response.getData().readAllBytes(), StandardCharsets.UTF_8)).isEqualTo("OK!");
     }
 
     @Test
@@ -87,7 +86,7 @@ class AgentStatusHttpdTest {
         NanoHTTPD.Response response = this.agentStatusHttpd.serve(session);
         assertThat(response.getStatus()).isEqualTo(NanoHTTPD.Response.Status.OK);
         assertThat(response.getMimeType()).isEqualTo("text/plain; charset=utf-8");
-        assertThat(IOUtils.toString(response.getData(), StandardCharsets.UTF_8)).isEqualTo("OK!");
+        assertThat(new String(response.getData().readAllBytes(), StandardCharsets.UTF_8)).isEqualTo("OK!");
     }
 
     @Test
