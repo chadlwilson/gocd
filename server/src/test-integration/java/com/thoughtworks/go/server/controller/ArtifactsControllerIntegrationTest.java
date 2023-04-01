@@ -102,7 +102,7 @@ public class ArtifactsControllerIntegrationTest {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineName = "pipeline-" + UUID.randomUUID().toString();
+        pipelineName = "pipeline-" + UUID.randomUUID();
 
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -130,12 +130,7 @@ public class ArtifactsControllerIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
-            String message = String.format("deleting {}, path: {}", f.getName(), f.getPath());
-            System.out.println(message);
-
             if (!f.delete()) {
-                String deleteOnExitMessage = String.format("Couldn't delete {}, so marking deleteOnExit() path: {}", f.getName(), f.getPath());
-                System.out.println(deleteOnExitMessage);
                 f.deleteOnExit();
             }
         }
@@ -144,8 +139,6 @@ public class ArtifactsControllerIntegrationTest {
             try {
                 deleteDirectory(artifactsRoot);
             } catch (IOException e) {
-                String deleteOnExitMessage = String.format("Couldn't delete {}, so marking deleteOnExit() path: {}", artifactsRoot.getName(), artifactsRoot.getPath());
-                System.out.println(deleteOnExitMessage);
                 artifactsRoot.deleteOnExit();
             }
         }
@@ -182,9 +175,8 @@ public class ArtifactsControllerIntegrationTest {
     @Test
     public void shouldReturn404WhenNoLastGoodBuildForGet() throws Exception {
         ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null, null);
-        int status = SC_NOT_FOUND;
         String content = "Job " + pipelineName + "/lastgood/stage/1/build not found.";
-        assertValidContentAndStatus(mav, status, content);
+        assertValidContentAndStatus(mav, SC_NOT_FOUND, content);
     }
 
     @Test
@@ -374,26 +366,17 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldPutConsoleOutput_whenContentMoreThanBufferSizeUsed() throws Exception {
-        StringBuilder builder = new StringBuilder();
-        String str = "This is one full line of text. With 2 sentences without newline separating them.\n";
         int numberOfLines = ConsoleService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE / 10;
-        for (int i = 0; i < numberOfLines; i++) {
-            builder.append(str);
-        }
-        for (int i = 0; i < numberOfLines; i++) {
-            builder.append(str);
-        }
-        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
+        String str = "This is one full line of text. With 2 sentences without newline separating them.\n";
+        String content = str.repeat(numberOfLines) + str.repeat(numberOfLines);
+        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", content);
 
         String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile), UTF_8);
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length, is(2 * numberOfLines));
-        String hundredThLine = null;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            if (i == numberOfLines) {
-                hundredThLine = line;
-            } else {
+            if (i != numberOfLines) {
                 assertThat("Line " + i + " doesn't have desired content.", line + "\n", is(str));
             }
         }
@@ -713,9 +696,9 @@ public class ArtifactsControllerIntegrationTest {
         };
     }
 
-    class ResponseOutput {
-        private PrintWriter writer;
-        private ByteArrayOutputStream stream;
+    static class ResponseOutput {
+        private final PrintWriter writer;
+        private final ByteArrayOutputStream stream;
 
         public ResponseOutput() {
             stream = new ByteArrayOutputStream();
