@@ -34,6 +34,8 @@ class DownloaderTask extends DefaultTask {
   String packageName
   @Input
   String packageVersion
+  @Input
+  Boolean isSingleExecutable
 
   private final ProjectOperations projectOperations
 
@@ -61,6 +63,11 @@ class DownloaderTask extends DefaultTask {
       @Override
       protected File verifyDistributionRoot(File distDir) {
         distDir
+      }
+
+      @Override
+      protected void unpack(File srcArchive, File destDir) {
+        if (!isSingleExecutable) super.unpack(srcArchive, destDir)
       }
     }
   }

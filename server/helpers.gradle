@@ -1,3 +1,6 @@
+import com.thoughtworks.go.build.DownloaderTask
+import org.gradle.internal.os.OperatingSystem
+
 /*
  * Copyright 2023 Thoughtworks, Inc.
  *
@@ -83,4 +86,42 @@ task bumpSchemaVersion {
       println "Now edit the file ${xslFile}"
     }
   }
+}
+
+final Map<OperatingSystem, String> perforceClientVersion = [
+  (OperatingSystem.MAC_OS)  : '22.2',
+  (OperatingSystem.WINDOWS) : '22.2',
+  (OperatingSystem.LINUX)   : '22.2',
+]
+
+final Map<OperatingSystem, String> perforceServerVersion = [
+  (OperatingSystem.MAC_OS)  : '22.2',
+  (OperatingSystem.WINDOWS) : '22.2',
+  (OperatingSystem.LINUX)   : '22.2',
+]
+
+final Map<OperatingSystem, String> perforceBinFolder = [
+  (OperatingSystem.MAC_OS)  : 'bin.macosx1015x86_64',
+  (OperatingSystem.WINDOWS) : 'bin.ntx64',
+  (OperatingSystem.LINUX)   : 'bin.linux26x86_64',
+]
+
+def currentOS = OperatingSystem.current()
+
+task downloadPerforceClient(type: DownloaderTask) { thisTask ->
+  executable = 'p4' + (OperatingSystem.WINDOWS == currentOS ? '.exe' : '')
+  packageName = 'p4'
+  packageVersion = perforceClientVersion[currentOS]
+  isSingleExecutable = true
+
+  url = "https://cdist2.perforce.com/perforce/r${packageVersion}/${perforceBinFolder[currentOS]}/${executable}"
+}
+
+task downloadPerforceServer(type: DownloaderTask) { thisTask ->
+  executable = 'p4d' + (OperatingSystem.WINDOWS == currentOS ? '.exe' : '')
+  packageName = 'p4d'
+  packageVersion = perforceServerVersion[currentOS]
+  isSingleExecutable = true
+
+  url = "https://cdist2.perforce.com/perforce/r${packageVersion}/${perforceBinFolder[currentOS]}/${executable}"
 }
