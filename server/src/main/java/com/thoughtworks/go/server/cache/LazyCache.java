@@ -16,8 +16,7 @@
 package com.thoughtworks.go.server.cache;
 
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
+import org.ehcache.core.Ehcache;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.function.Supplier;

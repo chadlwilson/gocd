@@ -16,12 +16,10 @@
 package com.thoughtworks.go.server.cache;
 
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.CacheConfiguration;
+import org.ehcache.config.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -33,7 +31,7 @@ public class GoCacheFactory {
     private TransactionSynchronizationManager transactionSynchronizationManager;
 
     static {
-        System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
+        System.setProperty("org.ehcache.skipUpdateCheck", "true");
     }
 
     public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager,

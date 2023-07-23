@@ -15,8 +15,7 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
+import org.ehcache.core.Ehcache;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;

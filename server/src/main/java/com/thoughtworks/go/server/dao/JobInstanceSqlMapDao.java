@@ -34,13 +34,11 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.ehcache.CacheManager;
+import org.ehcache.config.CacheConfiguration;
+import org.ehcache.config.Configuration;
+import org.ehcache.core.Ehcache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +93,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         final CacheManager instance = CacheManager.newInstance(new Configuration().name(cacheName));
         synchronized (instance) {
             if (!instance.cacheExists(cacheName)) {
-                instance.addCache(new net.sf.ehcache.Cache(cacheConfiguration(cacheName)));
+                instance.addCache(new org.ehcache.Cache(cacheConfiguration(cacheName)));
             }
             return instance.getCache(cacheName);
         }

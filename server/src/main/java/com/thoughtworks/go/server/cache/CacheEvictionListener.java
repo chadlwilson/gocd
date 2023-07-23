@@ -15,10 +15,11 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.event.CacheEventListener;
+import org.ehcache.event.CacheEvent;
+import org.ehcache.event.CacheEventListener;
+import org.ehcache.event.EventType;
+
+import java.util.EnumSet;
 
 public class CacheEvictionListener implements CacheEventListener {
     private final GoCache goCache;
@@ -28,47 +29,15 @@ public class CacheEvictionListener implements CacheEventListener {
     }
 
     @Override
-    public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-        // do nothing
-    }
-
-    @Override
-    public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-        // do nothing
-    }
-
-    @Override
-    public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-        // do nothing
-    }
-
-    @Override
-    public void notifyElementExpired(Ehcache cache, Element element) {
-        removeCompositeKeyFromParentCache(element);
-    }
-
-    @Override
-    public void notifyElementEvicted(Ehcache cache, Element element) {
-        removeCompositeKeyFromParentCache(element);
-    }
-
-    private void removeCompositeKeyFromParentCache(Element element) {
-        goCache.removeAssociations((String) element.getKey(), element);
-    }
-
-    @Override
-    public void notifyRemoveAll(Ehcache cache) {
-
-    }
-
-    @Override
-    public void dispose() {
-
-    }
-
-    @Override
     public Object clone() throws CloneNotSupportedException {
         super.clone();
         throw new CloneNotSupportedException();
+    }
+
+    @Override
+    public void onEvent(CacheEvent event) {
+        if (EnumSet.of(EventType.EXPIRED, EventType.EVICTED).contains(event.getType())) {
+            goCache.removeAssociations(event.getKey(), event.getOldValue());
+        }
     }
 }

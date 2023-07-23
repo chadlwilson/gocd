@@ -384,6 +384,9 @@ subprojects {
         module("dom4j:dom4j") {
           replacedBy("org.dom4j:dom4j", "Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
         }
+        module("net.sf.ehcache:ehcache") {
+          replacedBy("org.ehcache:ehcache", "Upgrade the legacy ehcache in old Hibernate 3.6; should be sufficiently compatible")
+        }
       }
       components {
         // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in

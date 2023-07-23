@@ -15,11 +15,9 @@
  */
 package com.thoughtworks.go.server.service.support;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.StatisticsGateway;
-import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

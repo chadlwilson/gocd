@@ -18,11 +18,10 @@ package com.thoughtworks.go.server.cache;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.lang3.StringUtils;
+import org.ehcache.config.CacheRuntimeConfiguration;
+import org.ehcache.core.Ehcache;
+import org.ehcache.event.CacheEventListener;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +100,7 @@ public class GoCache {
             LOGGER.debug("transaction active during cache put for {} = {}", key, value, new IllegalStateException());
             return;
         }
-        ehCache.put(new Element(key, value));
+        ehCache.put(key, value);
     }
 
     @SuppressWarnings("unchecked")
@@ -134,11 +133,7 @@ public class GoCache {
     }
 
     private <T> T getWithoutTransactionCheck(String key) {
-        Element element = ehCache.get(key);
-        if (element == null) {
-            return null;
-        }
-        @SuppressWarnings("unchecked") T value = (T) element.getObjectValue();
+        T value = ehCache.get(key);
         logUnsavedPersistentObjectInteraction(value, "PersistentObject {} without an id served out of cache.");
         return value;
     }
@@ -148,7 +143,7 @@ public class GoCache {
     }
 
     public void clear() {
-        ehCache.removeAll();
+        ehCache.clear();
     }
 
     public boolean remove(String key) {
@@ -186,10 +181,10 @@ public class GoCache {
         }
     }
 
-    public void removeAssociations(String key, Element element) {
-        if (element.getObjectValue() instanceof KeyList) {
+    public void removeAssociations(String key, Object value) {
+        if (value instanceof KeyList) {
             synchronized (key.intern()) {
-                for (String subkey : (KeyList) element.getObjectValue()) {
+                for (String subkey : (KeyList) value) {
                     remove(compositeKey(key, subkey));
                 }
             }
@@ -198,18 +193,18 @@ public class GoCache {
             String parentKey = parts[0];
             String childKey = parts[1];
             synchronized (parentKey.intern()) {
-                Element parent = ehCache.get(parentKey);
-                if (parent == null) {
+                Object parentValue = ehCache.get(parentKey);
+                if (parentValue == null) {
                     return;
                 }
-                KeyList subKeys = (KeyList) parent.getObjectValue();
+                KeyList subKeys = (KeyList) parentValue;
                 subKeys.remove(childKey);
             }
         }
     }
 
     public boolean isKeyInCache(Object key) {
-        return ehCache.isKeyInCache(key);
+        return ehCache.containsKey(key);
     }
 
     private KeyList subKeyFamily(String parentKey) {
@@ -235,8 +230,8 @@ public class GoCache {
         }
     }
 
-    public CacheConfiguration configuration() {
-        return ehCache.getCacheConfiguration();
+    public CacheRuntimeConfiguration configuration() {
+        return ehCache.getRuntimeConfiguration();
     }
 
     private interface Predicate {

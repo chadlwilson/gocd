@@ -22,12 +22,11 @@ import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.LogFixture;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.CacheConfiguration;
+import org.ehcache.config.Configuration;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
