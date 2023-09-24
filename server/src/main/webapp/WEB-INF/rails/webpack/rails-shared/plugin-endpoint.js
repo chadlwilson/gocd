@@ -16,32 +16,31 @@
 (function() {
   "use strict";
 
-  // This file is shared between new and old pages, so we can't use ES6 syntax as the file
-  // isn't guaranteed to be compiled
+  // This file is shared between new and old pages, so we can't use more modern ES syntax as JS
+  // served by rails isn't guaranteed to be compiled
 
-  /* eslint-disable no-var,prefer-template,object-shorthand,prefer-arrow-callback */
-  var HANDLERS = {};
-  var attached = false;
-  var uid;
-  var pluginId;
+  const KNOWN_VERSIONS = ["v1"];
+  let HANDLERS = {};
+  let attached = false;
+  let uid;
+  let pluginId;
 
-  var REQUEST_ID_SEQ = 0;
-  var PENDING_REQUESTS = new RequestTable();
-  var KNOWN_VERSIONS = ["v1"];
-  var VERSION = "v1";
+  let REQUEST_ID_SEQ = 0;
+  let PENDING_REQUESTS = new RequestTable();
+  let VERSION = "v1";
 
   function RequestTable() {
-    var requests = {};
+    const requests = {};
 
     this.register = function register(id, request) {
       requests[id] = request;
     };
 
     this.pop = function getRequest(id) {
-      var req = requests[id];
+      const req = requests[id];
 
       if (!req) {
-        throw new Error("No request with id: " + id);
+        throw new Error(`No request with id: ${id}`);
       }
 
       delete requests[id];
@@ -78,7 +77,7 @@
 
   /** main function to delegate messages to appropriate handlers */
   function dispatch(ev) {
-    var message = ev.data;
+    const message = ev.data;
     if ("null" !== ev.origin && ev.origin !== window.location.origin) {
       err("Disregarding message", message, "because origin", ev.origin, "does not match", window.location.origin);
       return;
@@ -90,9 +89,9 @@
       return;
     }
 
-    var error = validateMessage(message);
+    const error = validateMessage(message);
     if (error) {
-      err(error + " debug:", message);
+      err(`${error} debug:`, message);
       return;
     }
 
@@ -119,12 +118,12 @@
   }
 
   function handleRequestResponse(source, message) {
-    var reqId = message.head.reqId,
+    const reqId = message.head.reqId,
       type = message.head.type;
 
     switch (type) {
-    case "request":
-      var key = messageKey(message);
+    case "request": {
+      const key = messageKey(message);
 
       if (!key) {
         err("Request is missing key; debug:", JSON.stringify(message));
@@ -138,10 +137,12 @@
 
       HANDLERS[key](message, new Transport(source, reqId));
       break;
-    case "response":
-      var req = PENDING_REQUESTS.pop(reqId);
+    }
+    case "response": {
+      const req = PENDING_REQUESTS.pop(reqId);
       req.onComplete(message.body.data, message.body.errors);
       break;
+    }
     default:
       err("Don't know how to handle type", type, "; debug:", message);
       break;
@@ -158,21 +159,18 @@
   }
 
   function Transport(win, responseId) {
-    var alreadyResponded = false;
+    let alreadyResponded = false;
 
     this.request = function sendRequest(key, data) {
-      var fullKey = msgKey(key);
-      var reqId = nextReqId();
-      var req = new PluginRequest(reqId);
+      const fullKey = msgKey(key);
+      const reqId = nextReqId();
+      const req = new PluginRequest(reqId);
 
       PENDING_REQUESTS.register(reqId, req);
 
       /* make the send() happen asynchronously so that plugin
        * authors can attach chaining-style callbacks. */
-      setTimeout(function() {
-        send(win, data, {reqId: reqId, type: "request", key: fullKey});
-      }, 0);
-
+      setTimeout(() => send(win, data, {reqId, type: "request", key: fullKey}), 0);
       return req;
     };
 
@@ -195,7 +193,7 @@
   function PluginRequest() {
     function noop() {}
 
-    var handlers = {
+    const handlers = {
       done: noop,
       fail: noop,
       always: noop
@@ -239,13 +237,13 @@
     }
 
     if (KNOWN_VERSIONS.indexOf(version) === -1) {
-      throw new Error("`version` must be one of: " + KNOWN_VERSIONS.join(", "));
+      throw new Error(`\`version\` must be one of: ${KNOWN_VERSIONS.join(", ")}`);
     }
 
     return version;
   }
 
-  var AnalyticsEndpoint = {
+  const AnalyticsEndpoint = {
     reset: function reset() {
       HANDLERS = {},
       attached = false,
@@ -272,16 +270,17 @@
     },
     /** define an api, i.e. a set of handlers for one or more keys */
     define: function addMany(api) {
-      for (var i = 0, keys = Object.keys(api), len = keys.length; i < len; ++i) {
+      const keys = Object.keys(api), len = keys.length;
+      for (let i = 0; i < len; ++i) {
         if ("function" === typeof api[keys[i]]) {
           HANDLERS[keys[i]] = api[keys[i]];
         }
       }
     },
-    init: init,
+    init,
     onInit: function onInit(initializerFn) {
-      this.on(msgKey("init"), function handleInit(message, transport) {
-        var body = message.body;
+      this.on(msgKey("init"), (message, transport) => {
+        const body = message.body;
         uid = body.uid;
         pluginId = body.pluginId;
         initializerFn(body.initialData, transport);
