@@ -128,6 +128,7 @@
   },
   "resolutions": {
     "chokidar@npm:2.1.8/glob-parent": "^5.1.2",
+    "webpack@npm:4.47.0/acorn": "^8.10.0",
     "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },

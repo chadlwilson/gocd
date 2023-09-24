@@ -21,8 +21,6 @@ import {getCacheLoader} from "./cache-loader";
 import {threadLoader} from "./thread-loader";
 
 export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
-  const loaderName = "ts-loader";
-
   const loaders = [];
 
   if (configOptions.watch) {
@@ -38,7 +36,7 @@ export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleS
       }
     },
     {
-      loader: loaderName,
+      loader: "ts-loader",
       options: {
         configFile: path.join(configOptions.railsRoot, "tsconfig.json"),
         transpileOnly: configOptions.watch, // perform typechecking using fork-ts-checker-webpack-plugin
