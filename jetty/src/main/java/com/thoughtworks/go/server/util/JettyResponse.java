@@ -28,9 +28,4 @@ public class JettyResponse implements ServletResponse {
     public int getStatus() {
         return ((Response) servletResponse).getStatus();
     }
-
-    @Override
-    public long getContentCount() {
-        return ((Response) servletResponse).getContentCount();
-    }
 }

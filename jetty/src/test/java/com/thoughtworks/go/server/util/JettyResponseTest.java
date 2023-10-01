@@ -38,10 +38,4 @@ public class JettyResponseTest {
         when(response.getStatus()).thenReturn(200);
         assertThat(jettyResponse.getStatus()).isEqualTo(200);
     }
-
-    @Test
-    public void shouldGetResponseContentCount() {
-        when(response.getContentCount()).thenReturn(2000L);
-        assertThat(jettyResponse.getContentCount()).isEqualTo(2000L);
-    }
 }

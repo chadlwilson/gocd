@@ -17,11 +17,11 @@ package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.ee8.nested.HandlerWrapper;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

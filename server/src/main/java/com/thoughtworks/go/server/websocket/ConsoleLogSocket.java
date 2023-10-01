@@ -19,13 +19,13 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
-import org.eclipse.jetty.websocket.api.UpgradeRequest;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.ee8.websocket.api.Session;
+import org.eclipse.jetty.ee8.websocket.api.StatusCode;
+import org.eclipse.jetty.ee8.websocket.api.UpgradeRequest;
+import org.eclipse.jetty.ee8.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.ee8.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.ee8.websocket.api.annotations.OnWebSocketError;
+import org.eclipse.jetty.ee8.websocket.api.annotations.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +44,11 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     private final JobIdentifier jobIdentifier;
     private final ConsoleLogSender handler;
+    private final String key;
+    private final SocketHealthService socketHealthService;
+    private final String consoleLogCharsetJSONMessage;
     private Session session;
     private String sessionId;
-    private String key;
-    private SocketHealthService socketHealthService;
-    private final String consoleLogCharsetJSONMessage;
 
     ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService, Charset consoleLogCharset) {
         this.handler = handler;

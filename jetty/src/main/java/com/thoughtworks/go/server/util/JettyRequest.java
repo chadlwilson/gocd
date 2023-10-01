@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.util;
 
-import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.Request;
 
 import javax.servlet.ServletRequestWrapper;
@@ -34,11 +33,13 @@ public class JettyRequest implements ServletRequest {
 
     @Override
     public void modifyPath(Function<String, String> pathModifier) {
-        request.setHttpURI(HttpURI.build(request.getHttpURI()).path(pathModifier.apply(request.getHttpURI().getPath())).asImmutable());
+        // FIXME Requests are immutalbe now - need to wrap them with ServeAs?
+//        request.setHttpURI(HttpURI.build(request.getHttpURI()).path(pathModifier.apply(request.getHttpURI().getPath())).asImmutable());
     }
 
     @Override
     public String getRootURL() {
-        return request.getRootURL().toString();
+        // FIXME....
+        return null;
     }
 }

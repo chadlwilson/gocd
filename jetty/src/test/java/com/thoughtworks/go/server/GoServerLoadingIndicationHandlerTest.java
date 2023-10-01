@@ -16,10 +16,10 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

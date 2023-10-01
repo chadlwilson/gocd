@@ -16,17 +16,15 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.Callback;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class AssetsContextHandler extends ContextHandler {
@@ -44,9 +42,7 @@ public class AssetsContextHandler extends ContextHandler {
 
     public void init(WebAppContext webAppContext) throws IOException {
         String railsRootDirName = webAppContext.getInitParameter("rails.root").replaceAll("/WEB-INF/", "");
-        try (Resource assetsPathResource = webAppContext.getWebInf().addPath(railsRootDirName + "/public/assets/")) {
-            assetsHandler.setAssetsDir(assetsPathResource.getName());
-        }
+        assetsHandler.setAssetsDir(webAppContext.getWebInf().getPath().resolve(railsRootDirName + "/public/assets/").toString());
     }
 
     private boolean shouldNotHandle() {
@@ -57,15 +53,13 @@ public class AssetsContextHandler extends ContextHandler {
         return assetsHandler;
     }
 
-    class AssetsHandler extends AbstractHandler {
+    class AssetsHandler extends Handler.Abstract {
         private final ResourceHandler resourceHandler = new ResourceHandler();
 
         private AssetsHandler() {
             resourceHandler.setCacheControl("max-age=31536000,public");
             resourceHandler.setEtags(false);
-
             resourceHandler.setDirAllowed(false);
-            resourceHandler.setDirectoriesListed(false);
         }
 
         @Override
@@ -75,13 +69,14 @@ public class AssetsContextHandler extends ContextHandler {
         }
 
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            if (shouldNotHandle()) return;
-            this.resourceHandler.handle(target, baseRequest, request, response);
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
+            if (shouldNotHandle()) return false;
+            this.resourceHandler.handle( request, response, callback);
+            return true;
         }
 
         private void setAssetsDir(String assetsDir) {
-            resourceHandler.setResourceBase(assetsDir);
+            resourceHandler.setBaseResourceAsString(assetsDir);
         }
 
         public ResourceHandler getResourceHandler() {

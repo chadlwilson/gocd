@@ -18,21 +18,20 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.deploy.App;
+import org.eclipse.jetty.deploy.AppProvider;
 import org.eclipse.jetty.deploy.DeploymentManager;
-import org.eclipse.jetty.deploy.providers.WebAppProvider;
+import org.eclipse.jetty.deploy.providers.ContextProvider;
+import org.eclipse.jetty.ee8.nested.SessionHandler;
+import org.eclipse.jetty.ee8.webapp.*;
+import org.eclipse.jetty.ee8.websocket.server.config.JettyWebSocketConfiguration;
+import org.eclipse.jetty.ee8.websocket.server.config.JettyWebSocketServletContainerInitializer;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.*;
-import org.eclipse.jetty.websocket.server.config.JettyWebSocketConfiguration;
-import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -81,13 +81,10 @@ public class JettyServer extends AppServer {
 
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
-        webAppContext.insertHandler(gzipHandler());
+//        webAppContext.insertHandler(gzipHandler());
         server.addBean(errorHandler);
         server.addBean(deploymentManager);
 
-        HandlerCollection serverLevelHandlers = new HandlerCollection();
-        serverLevelHandlers.setHandlers(new Handler[]{handlers});
-        server.setHandler(serverLevelHandlers);
 
         performCustomConfiguration();
         server.setStopAtShutdown(true);
@@ -161,17 +158,18 @@ public class JettyServer extends AppServer {
     }
 
     void startHandlers() {
-        WebAppProvider webAppProvider = new WebAppProvider();
+        AppProvider webAppProvider = new ContextProvider();
+        // FIXME this is not correct
 
-        deploymentManager.addApp(new App(deploymentManager, webAppProvider, "welcomeHandler", rootHandler()));
+        deploymentManager.addApp(new App(deploymentManager, webAppProvider, Paths.get("welcomeHandler")));
 
         if (systemEnvironment.useCompressedJs()) {
             AssetsContextHandler assetsContextHandler = new AssetsContextHandler(systemEnvironment);
-            deploymentManager.addApp(new App(deploymentManager, webAppProvider, "assetsHandler", assetsContextHandler));
+            deploymentManager.addApp(new App(deploymentManager, webAppProvider,  Paths.get("assetsHandler")));
             webAppContext.addEventListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));
         }
 
-        deploymentManager.addApp(new App(deploymentManager, webAppProvider, "realApp", webAppContext));
+        deploymentManager.addApp(new App(deploymentManager, webAppProvider,  Paths.get("realApp")));
     }
 
     private MBeanContainer mbeans() {
@@ -192,7 +190,7 @@ public class JettyServer extends AppServer {
         if (jettyConfig.exists()) {
             replaceJettyXmlIfItBelongsToADifferentVersion(jettyConfig);
             LOG.info("Configuring Jetty using {}", jettyConfig.getAbsolutePath());
-            XmlConfiguration configuration = new XmlConfiguration(Resource.newResource(jettyConfig));
+            XmlConfiguration configuration = new XmlConfiguration(new PathResourceFactory().newResource(jettyConfig.toPath()));
             configuration.configure(server);
         } else {
             String message = String.format(
