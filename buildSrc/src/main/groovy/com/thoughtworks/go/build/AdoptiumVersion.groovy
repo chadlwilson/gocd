@@ -41,26 +41,8 @@ class AdoptiumVersion implements Serializable {
     URLEncoder.encode(canonicalDisplayVersion(), StandardCharsets.UTF_8)
   }
 
-  // Examples
-  // 17_35 (first release)
-  // 17.0.4_8 (normal release)
-  // 17.0.4.1_1 (rare emergency patch release
-  def fileSafeDisplayVersion() {
-    canonicalDisplayVersion().replace('+', '_')
-  }
-
-  def featureSuffix() {
-    update == null ? '' : 'U'
-  }
-
   def toDownloadURLFor(OperatingSystem os, Architecture arch) {
-    "https://github.com/adoptium/temurin${feature}-binaries/releases/download/" +
-      "jdk-${urlSafeDisplayVersion()}/" +
-      "OpenJDK${feature}${featureSuffix()}-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
-  }
-
-  def toSha256SumURLFor(OperatingSystem os, Architecture arch) {
-    "${toDownloadURLFor(os, arch)}.sha256.txt"
+    "https://api.adoptium.net/v3/binary/version/jdk-${urlSafeDisplayVersion()}/${os.adoptiumAlias}/${arch.canonicalName}/jre/hotspot/normal/eclipse"
   }
 
   def toMetadata() {

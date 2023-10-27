@@ -19,31 +19,17 @@ import com.thoughtworks.go.build.*
 import org.apache.commons.codec.digest.DigestUtils
 
 private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
-}
-
-task downloadMacJreX64Checksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.x64)
-  dest destFile(src.toString())
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path.replaceAll("/", "_"))}")
 }
 
 task downloadMacJreX64(type: DownloadFile) {
-  dependsOn downloadMacJreX64Checksum
   src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.x64)
-  dest destFile(src.toString())
-  checksum = { downloadMacJreX64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
-}
-
-task downloadMacJreArm64Checksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
 }
 
 task downloadMacJreArm64(type: DownloadFile) {
-  dependsOn downloadMacJreArm64Checksum
   src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
-  checksum = { downloadMacJreArm64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask, Architecture arch) {

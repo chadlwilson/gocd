@@ -20,19 +20,12 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.tools.ant.filters.FixCrLfFilter
 
 private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
-}
-
-task downloadWindowsJreChecksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
-  dest destFile(src.toString())
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path.replaceAll("/", "_"))}")
 }
 
 task downloadWindowsJre(type: DownloadFile) {
-  dependsOn downloadWindowsJreChecksum
   src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
-  checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installerType, Zip genericZipTask, File buildRoot) {
