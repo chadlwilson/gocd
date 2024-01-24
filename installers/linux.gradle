@@ -103,15 +103,20 @@ task downloadLinuxJreChecksum(type: DownloadFile) {
 
 task downloadLinuxJre(type: DownloadFile) {
   dependsOn downloadLinuxJreChecksum
-  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.linux, Architecture.x64)
+  src { project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.linux, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadLinuxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
+}
+
+task downloadLinuxJres {
+  doLast {
+    download
+  }
 }
 
 def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {
   packageTask.with {
     dependsOn configuration
-    dependsOn downloadLinuxJre
     dependsOn extractDeltaPack
     outputs.dir(destDir)
 
@@ -316,7 +321,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         cmd += ['--license', 'Apache-2.0']
         cmd += ['--vendor', 'Thoughtworks, Inc.']
         cmd += ['--category', 'Development/Build Tools']
-        cmd += ['--architecture', 'all']
+        cmd += ['--architecture', arch.canonicalName]
         cmd += ['--maintainer', 'Thoughtworks, Inc.']
         cmd += ['--url', 'https://gocd.org']
         cmd += ['--before-install', project.file('linux/shared/before-install.sh.erb').path]
