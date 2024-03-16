@@ -149,6 +149,7 @@ public class PipelineScheduleQueue {
     }
 
     private String mutexForPipelineName(CaseInsensitiveString pipelineName) {
+        // FIXME is there a better way than string.intern?
         return String.format("%s-%s", PipelineScheduleQueue.class.getName(), pipelineName.toLower()).intern();
     }
 

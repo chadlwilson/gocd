@@ -24,7 +24,9 @@ import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -54,14 +56,13 @@ public class JobStatusCache implements JobStatusListener {
     }
 
     private void clearOldJobs(JobInstance newJob) {
-        Set<JobConfigIdentifier> cachedIds = new HashSet<>(jobs.keySet());
-        for (JobConfigIdentifier cachedId : cachedIds) {
-            JobInstance originalCached = jobs.get(cachedId);
-            if ((originalCached == NEVER_RUN && !newJob.getIdentifier().jobConfigIdentifier().equals(cachedId))) {
+        for (JobConfigIdentifier id : jobs.keySet()) {
+            JobInstance instance = jobs.get(id);
+            if (instance == NEVER_RUN && !newJob.getIdentifier().jobConfigIdentifier().equals(id)) {
                 continue;
             }
-            if (shouldBeCleared(newJob, originalCached)) {
-                jobs.remove(cachedId, originalCached);
+            if (shouldBeCleared(newJob, instance)) {
+                jobs.remove(id, instance);
             }
         }
     }
