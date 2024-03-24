@@ -24,8 +24,8 @@ import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,9 +35,9 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Component
 public class JobStatusCache implements JobStatusListener {
-    private ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<>();
-    private final StageDao stageDao;
     private static final NullJobInstance NEVER_RUN = new NullJobInstance("NEVER_RUN");
+    private final ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<>();
+    private final StageDao stageDao;
 
     @Autowired
     public JobStatusCache(StageDao stageDao) {
@@ -50,58 +50,48 @@ public class JobStatusCache implements JobStatusListener {
     }
 
     private synchronized void cache(JobInstance newJob) {
-        JobConfigIdentifier identifier = newJob.getIdentifier().jobConfigIdentifier();
-        jobs.put(identifier, newJob);
+        jobs.put(newJob.getIdentifier().jobConfigIdentifier(), newJob);
         clearOldJobs(newJob);
     }
 
     private void clearOldJobs(JobInstance newJob) {
-        for (JobConfigIdentifier id : jobs.keySet()) {
-            JobInstance instance = jobs.get(id);
-            if (instance == NEVER_RUN && !newJob.getIdentifier().jobConfigIdentifier().equals(id)) {
-                continue;
-            }
-            if (shouldBeCleared(newJob, instance)) {
-                jobs.remove(id, instance);
-            }
-        }
+        jobs.entrySet().removeIf(entry ->
+            (entry.getValue() != NEVER_RUN || isSameJobConfig(newJob, entry.getKey()))
+                && entry.getValue().isSameStageConfig(newJob)
+                && !entry.getValue().isSamePipelineInstance(newJob)
+        );
     }
 
-    private boolean shouldBeCleared(JobInstance newJob, JobInstance cached) {
-        return cached.isSameStageConfig(newJob) && !cached.isSamePipelineInstance(newJob);
+    private boolean isSameJobConfig(JobInstance newJob, JobConfigIdentifier cachedId) {
+        return newJob.getIdentifier().jobConfigIdentifier().equals(cachedId);
     }
 
     public JobInstance currentJob(JobConfigIdentifier identifier) {
-        List<JobInstance> jobs = currentJobs(identifier);
-        return jobs.isEmpty() ? null : jobs.get(0);
+        return currentJobs(identifier).stream().findFirst().orElse(null);
     }
 
     public List<JobInstance> currentJobs(final JobConfigIdentifier identifier) {
         if (jobs.get(identifier) == NEVER_RUN) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
-        List<JobInstance> found = addInstances(identifier, jobs.values());
-        if (found.isEmpty()) {
-            found = addInstances(identifier, stageDao.mostRecentJobsForStage(identifier.getPipelineName(), identifier.getStageName()));
-            if (found.isEmpty()) {
-                jobs.put(identifier, NEVER_RUN);
-            } else {
-                for (JobInstance jobInstance : found) {
-                    cache(jobInstance);
-                }
+        List<JobInstance> cached = instancesMatching(jobs.values(), identifier);
+        if (!cached.isEmpty()) {
+            return cached;
+        }
+
+        List<JobInstance> fromDatabase = instancesMatching(stageDao.mostRecentJobsForStage(identifier.getPipelineName(), identifier.getStageName()), identifier);
+        if (fromDatabase.isEmpty()) {
+            jobs.put(identifier, NEVER_RUN);
+        } else {
+            for (JobInstance jobInstance : fromDatabase) {
+                cache(jobInstance);
             }
         }
-        return found;
+        return fromDatabase;
     }
 
-    private List<JobInstance> addInstances(JobConfigIdentifier identifier, Collection<JobInstance> jobInstances) {
-        List<JobInstance> found = new ArrayList<>();
-        for (JobInstance jobInstance : jobInstances) {
-            if (jobInstance != NEVER_RUN && jobInstance.matches(identifier)) {
-                found.add(jobInstance);
-            }
-        }
-        return found;
+    private List<JobInstance> instancesMatching(Collection<JobInstance> jobInstances, JobConfigIdentifier identifier) {
+        return jobInstances.stream().filter(jobInstance -> jobInstance != NEVER_RUN && jobInstance.matches(identifier)).toList();
     }
 
     @TestOnly
