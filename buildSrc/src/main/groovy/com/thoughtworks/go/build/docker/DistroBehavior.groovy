@@ -74,7 +74,7 @@ trait DistroBehavior {
   }
 
   Set<Architecture> getSupportedArchitectures() {
-    [Architecture.x64]
+    [Architecture.x64, Architecture.aarch64]
   }
 
   Architecture getDockerVerifyArchitecture() {
