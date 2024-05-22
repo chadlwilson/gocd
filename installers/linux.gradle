@@ -24,9 +24,13 @@ import org.apache.tools.ant.filters.ConcatFilter
 enum PackageType {
 
   deb {
+    String jreDependency(Project project) {
+      "java${project.packagedJavaVersion.feature}-runtime-headless | java${project.targetJavaVersion}-runtime-headless"
+    }
+
     // Debian packages allow either most recent or minimum Java version in dependencies because
     // Java 21 was not available on Debian releases despite it being preferred, although was available for Ubuntu.
-    String jreDependency(Project project) {
+    String jreRecommendation(Project project) {
       "openjdk-${project.packagedJavaVersion.feature}-jre-headless | openjdk-${project.targetJavaVersion}-jre-headless"
     }
 
@@ -48,7 +52,8 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--deb-recommends', jreDependency(project)]
+      fpmArgs += ['--depends', jreDependency(project)]
+      fpmArgs += ['--deb-recommends', jreRecommendation(project)]
 
       // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
       def tmpDir = project.file("${project.buildDir}/tmp")
@@ -67,6 +72,10 @@ enum PackageType {
   },
   rpm {
     String jreDependency(Project project) {
+      "(java-${project.packagedJavaVersion.feature}-headless or java-${project.targetJavaVersion}-headless)"
+    }
+
+    String jreRecommendation(Project project) {
       "(java-${project.packagedJavaVersion.feature}-openjdk-headless or java-${project.targetJavaVersion}-openjdk-headless)"
     }
 
@@ -89,7 +98,8 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--rpm-tag', "Recommends: ${jreDependency(project)}"]
+      fpmArgs += ['--depends', jreDependency(project)]
+      fpmArgs += ['--rpm-tag', "Recommends: ${jreRecommendation(project)}"]
 
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
