@@ -39,9 +39,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.ops4j.pax.tinybundles.core.InnerClassStrategy;
-import org.ops4j.pax.tinybundles.core.TinyBundle;
-import org.ops4j.pax.tinybundles.core.TinyBundles;
+import org.ops4j.pax.tinybundles.InnerClassStrategy;
+import org.ops4j.pax.tinybundles.TinyBundle;
+import org.ops4j.pax.tinybundles.TinyBundles;
 import org.osgi.framework.*;
 
 import java.io.File;
@@ -376,13 +376,13 @@ class DefaultGoPluginActivatorIntegrationTest {
 
     private File createBundleWithActivator(String destinationDir, Class<?>... classesToBeAdded) throws IOException {
         TinyBundle bundleBeingBuilt = TinyBundles.bundle()
-                .add(GoPluginActivator.class)
-                .add(DefaultGoPluginActivator.class, InnerClassStrategy.ALL)
-                .set(Constants.BUNDLE_ACTIVATOR, DefaultGoPluginActivator.class.getCanonicalName())
-                .set(Constants.BUNDLE_CLASSPATH, ".,lib/dependency.jar")
-                .set(Constants.BUNDLE_SYMBOLICNAME, GO_TEST_DUMMY_SYMBOLIC_NAME);
+                .addClass(GoPluginActivator.class)
+                .addClass(DefaultGoPluginActivator.class, InnerClassStrategy.ALL)
+                .setHeader(Constants.BUNDLE_ACTIVATOR, DefaultGoPluginActivator.class.getCanonicalName())
+                .setHeader(Constants.BUNDLE_CLASSPATH, ".,lib/dependency.jar")
+                .setHeader(Constants.BUNDLE_SYMBOLICNAME, GO_TEST_DUMMY_SYMBOLIC_NAME);
         for (Class<?> aClass : classesToBeAdded) {
-            bundleBeingBuilt.add(aClass, InnerClassStrategy.NONE);
+            bundleBeingBuilt.addClass(aClass, InnerClassStrategy.NONE);
         }
         ZipInputStream src = new ZipInputStream(bundleBeingBuilt.build());
         File bundleExplodedDir = explodeBundleIntoDirectory(src, destinationDir);
