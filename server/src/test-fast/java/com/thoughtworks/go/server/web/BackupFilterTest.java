@@ -20,9 +20,10 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.ee8.nested.HttpInput;
+import org.eclipse.jetty.ee8.nested.ServletCoreRequest;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -197,7 +199,7 @@ public class BackupFilterTest {
     }
 
     private Request request(HttpMethod method, String contentType, String uri) {
-        Request request = new Request(mock(HttpChannel.class, RETURNS_DEEP_STUBS), mock(HttpInput.class));
+        Request request = ServletCoreRequest.wrap(mock(HttpServletRequest.class, RETURNS_DEEP_STUBS));
         HttpURI httpURI = HttpURI.from("http", "url", 8153, uri);
         MetaData.Request metadata = new MetaData.Request(method.asString(), httpURI, HttpVersion.HTTP_2, HttpFields.from());
         request.setMetaData(metadata);

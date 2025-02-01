@@ -81,7 +81,7 @@ public class JettyServer extends AppServer {
 
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
-//        webAppContext.insertHandler(gzipHandler());
+        webAppContext.insertHandler(gzipHandler());
         server.addBean(errorHandler);
         server.addBean(deploymentManager);
 

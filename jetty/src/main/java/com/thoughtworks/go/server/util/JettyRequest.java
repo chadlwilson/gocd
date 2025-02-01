@@ -20,7 +20,7 @@ import org.eclipse.jetty.server.Request;
 import javax.servlet.ServletRequestWrapper;
 import java.util.function.Function;
 
-public class JettyRequest implements ServletRequest {
+public class JettyRequest implements PathModifiable {
     private final Request request;
 
     public JettyRequest(javax.servlet.ServletRequest request) {

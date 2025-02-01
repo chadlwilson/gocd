@@ -55,7 +55,6 @@ public class UrlRewriterIntegrationTest {
     private static final String HTTP_SITE_URL = "http://" + IP_2 + ":" + HTTP;
     private static final String HTTPS_SITE_URL = "https://" + IP_2 + ":" + HTTPS;
 
-    private static HttpTestUtil httpUtil;
     private static WebApplicationContext wac;
 
     private static final ResponseAssertion NO_REWRITE = new ResponseAssertion(HTTP_URL + "/go/quux?hello=world", HTTP_URL + "/go/quux?hello=world");
