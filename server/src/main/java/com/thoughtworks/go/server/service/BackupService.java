@@ -19,7 +19,6 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.security.AESCipherProvider;
-import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.PostBackupScript;
@@ -319,17 +318,11 @@ public class BackupService implements BackupStatusProvider {
         String configDirectory = systemEnvironment.getConfigDir();
         try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, CONFIG_BACKUP_ZIP))))) {
             File cruiseConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-            File desCipherFile = systemEnvironment.getDESCipherFile();
             File aesCipherFile = systemEnvironment.getAESCipherFile();
-            new DirectoryStructureWalker(configDirectory, configZip, cruiseConfigFile, desCipherFile, aesCipherFile).walk();
+            new DirectoryStructureWalker(configDirectory, configZip, cruiseConfigFile, aesCipherFile).walk();
 
             configZip.putNextEntry(new ZipEntry(cruiseConfigFile.getName()));
             IOUtils.write(goConfigService.xml(), configZip, UTF_8);
-
-            if (desCipherFile.exists()) {
-                configZip.putNextEntry(new ZipEntry(desCipherFile.getName()));
-                IOUtils.write(encodeHexString(new DESCipherProvider(systemEnvironment).getKey()), configZip, UTF_8);
-            }
 
             configZip.putNextEntry(new ZipEntry(aesCipherFile.getName()));
             IOUtils.write(encodeHexString(new AESCipherProvider(systemEnvironment).getKey()), configZip, UTF_8);
@@ -346,11 +339,11 @@ public class BackupService implements BackupStatusProvider {
     }
 
     public Optional<Date> lastBackupTime() {
-        return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getTime));
+        return serverBackupRepository.lastSuccessfulBackup().map(ServerBackup::getTime);
     }
 
     public Optional<String> lastBackupUser() {
-        return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getUsername));
+        return serverBackupRepository.lastSuccessfulBackup().map(ServerBackup::getUsername);
     }
 
     public void deleteAll() {
