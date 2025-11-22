@@ -23,7 +23,7 @@ export function getBabelLoader(configOptions: ConfigOptions): webpack.RuleSetRul
   const loaderName = "babel-loader";
 
   return {
-    test: /\.(msx|js)$/,
+    test: /\.(js|ts|msx|tsx)$/,
     exclude: /node_modules/,
     use: [
       threadLoader(configOptions),

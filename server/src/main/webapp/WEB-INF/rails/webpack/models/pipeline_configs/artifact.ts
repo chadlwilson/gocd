@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Stream = require("mithril/stream");
+import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";

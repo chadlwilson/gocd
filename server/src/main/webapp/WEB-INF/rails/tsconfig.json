@@ -5,25 +5,22 @@
     "paths": {
       "*": ["webpack/*"]
     },
-    "outDir": "./tmp/typescript-out/",
     "lib": [
       "es2023",
       "dom"
     ],
+    "noEmit": true,
     "strict": true,
-    "sourceMap": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
-    "module": "commonjs",
-    "target": "es5",
     "jsx": "react",
     "jsxFactory": "m",
     "jsxFragmentFactory": "m.Fragment",
     "allowJs": false,
-    "strictBindCallApply": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strictFunctionTypes": true,
     "typeRoots": ["node_modules/@types", "typings"],
   },
   "include": [

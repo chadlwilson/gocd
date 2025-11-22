@@ -29,6 +29,15 @@
         "pragma": "m",
         "pragmaFrag": "'['"
       }
+    ],
+    [
+      "@babel/preset-typescript",
+      {
+        "jsxPragma": "m",
+        "jsxPragmaFrag": "'['",
+        "allExtensions": true,
+        "isTSX": true
+      }
     ]
   ]
 }

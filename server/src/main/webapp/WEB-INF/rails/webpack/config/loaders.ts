@@ -18,11 +18,9 @@ import {ConfigOptions} from "config/variables";
 import {getBabelLoader} from "./loaders/babel-loader";
 import {getCssLoaders} from "./loaders/css-loader";
 import {getStaticAssetsLoader} from "./loaders/static-assets-loader";
-import {getTypescriptLoader} from "./loaders/ts-loader";
 
 export function loaders(configOptions: ConfigOptions) {
   return [
-    getTypescriptLoader(configOptions),
     getBabelLoader(configOptions),
     getCssLoaders(configOptions),
     getStaticAssetsLoader(configOptions)
