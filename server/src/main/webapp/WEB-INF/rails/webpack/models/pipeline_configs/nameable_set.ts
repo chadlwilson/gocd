@@ -29,7 +29,6 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
 
   constructor(readonly items?: T[] | null) {
     super();
-    Object.setPrototypeOf(this, Object.create(NameableSet.prototype));
 
     if (items) {
       items.forEach(this.add.bind(this));

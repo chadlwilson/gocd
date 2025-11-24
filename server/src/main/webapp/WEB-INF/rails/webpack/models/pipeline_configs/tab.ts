@@ -26,7 +26,6 @@ export interface TabJSON {
 export class Tabs extends Array<Tab> {
   constructor(...tabs: Tab[]) {
     super(...tabs);
-    Object.setPrototypeOf(this, Object.create(Tabs.prototype));
   }
 
   static fromJSON(json: TabJSON[]) {

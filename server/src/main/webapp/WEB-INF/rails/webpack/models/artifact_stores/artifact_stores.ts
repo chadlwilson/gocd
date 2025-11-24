@@ -38,7 +38,6 @@ export interface ArtifactStoreJSON {
 export class ArtifactStores extends Array<ArtifactStore> {
   constructor(...artifactStores: ArtifactStore[]) {
     super(...artifactStores);
-    Object.setPrototypeOf(this, Object.create(ArtifactStores.prototype));
   }
 
   static fromJSON(data: ArtifactStoresJSON) {

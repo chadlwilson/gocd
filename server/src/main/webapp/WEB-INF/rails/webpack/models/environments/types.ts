@@ -51,7 +51,6 @@ export class Pipeline {
 class Pipelines extends Array<Pipeline> {
   constructor(...pipelines: Pipeline[]) {
     super(...pipelines);
-    Object.setPrototypeOf(this, Object.create(Pipelines.prototype));
   }
 
   static fromJSON(pipelines: PipelineJSON[]) {
@@ -82,7 +81,6 @@ class Environment {
 export class Environments extends Array<Environment> {
   constructor(...environments: Environment[]) {
     super(...environments);
-    Object.setPrototypeOf(this, Object.create(Environments.prototype));
   }
 
   static fromJSON(data: EnvironmentsJSON) {
@@ -109,7 +107,6 @@ export class Agent {
 export class Agents extends Array<Agent> {
   constructor(...agents: Agent[]) {
     super(...agents);
-    Object.setPrototypeOf(this, Object.create(Agents.prototype));
   }
 
   static fromJSON(agents: AgentJSON[]) {

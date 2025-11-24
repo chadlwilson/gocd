@@ -45,7 +45,6 @@ export interface AccessTokensJSON {
 export class AccessTokens extends Array<Stream<AccessToken>> {
   constructor(...access_tokens: Array<Stream<AccessToken>>) {
     super(...access_tokens);
-    Object.setPrototypeOf(this, Object.create(AccessTokens.prototype));
   }
 
   static fromJSON(json: AccessTokensJSON) {
@@ -75,7 +74,6 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
 export class RevokedTokens extends AccessTokens {
   constructor(access_tokens: Array<Stream<AccessToken>>) {
     super(..._.filter(access_tokens, (accessToken: Stream<AccessToken>) => accessToken().revoked()));
-    Object.setPrototypeOf(this, Object.create(RevokedTokens.prototype));
   }
 
   sortByRevokeTime() {

@@ -74,7 +74,6 @@ export class SecretConfigs extends Array<Stream<SecretConfig>> {
 
   constructor(...secretConfigs: Array<Stream<SecretConfig>>) {
     super(...secretConfigs);
-    Object.setPrototypeOf(this, Object.create(SecretConfigs.prototype));
   }
 
   static fromJSON(data: SecretConfigsJSON) {

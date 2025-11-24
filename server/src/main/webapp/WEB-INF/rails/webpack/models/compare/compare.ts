@@ -58,7 +58,6 @@ export class Change {
 class Changes extends Array<Change> {
   constructor(...vals: Change[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(Changes.prototype));
   }
 
   static fromJSON(data: ChangeJSON[]): Changes {
@@ -98,7 +97,6 @@ export class MaterialRevision {
 export class MaterialRevisions extends Array<MaterialRevision> {
   constructor(...vals: MaterialRevision[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(MaterialRevisions.prototype));
   }
 
   static fromJSON(data: MaterialRevisionJSON[]): MaterialRevisions {
@@ -125,7 +123,6 @@ export class DependencyRevision {
 export class DependencyRevisions extends Array<DependencyRevision> {
   constructor(...vals: DependencyRevision[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(DependencyRevisions.prototype));
   }
 
   static fromJSON(data: DependencyRevisionJSON[]): DependencyRevisions {

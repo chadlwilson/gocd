@@ -16,6 +16,7 @@
 import {mixins as s} from "helpers/string-plus";
 import _ from "lodash";
 import {EventAware} from "models/mixins/event_aware";
+import {applyMixinsByPrototype} from "./mixins";
 
 export interface ErrorsJSON {
   [key: string]: string[];
@@ -26,7 +27,7 @@ export class Errors {
 
   constructor(errors: ErrorsJSON = {}) {
     this._errors = errors;
-    EventAware.call(this);
+    this.initHandlers();
   }
 
   clone() {
@@ -95,6 +96,8 @@ export class Errors {
     return _.every(this._errors, (errs, attr) => _.isEmpty(errs));
   }
 }
+
+applyMixinsByPrototype(Errors, EventAware);
 
 // tslint:disable-next-line no-empty-interface
 export interface Errors extends EventAware {}

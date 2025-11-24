@@ -122,7 +122,6 @@ export class MaterialMessage {
 export class MaterialMessages extends Array<MaterialMessage> {
   constructor(...vals: MaterialMessage[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(MaterialMessages.prototype));
   }
 
   static fromJSON(data: MaterialMessageJSON[]): MaterialMessages {
@@ -458,7 +457,6 @@ export class MaterialWithModification {
 export class Materials extends Array<MaterialWithModification> {
   constructor(...vals: MaterialWithModification[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(Materials.prototype));
   }
 
   static fromJSON(data: MaterialWithModificationJSON[]): Materials {
@@ -488,7 +486,6 @@ export class MaterialModifications extends Array<MaterialModification> {
 
   constructor(...vals: MaterialModification[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(MaterialModifications.prototype));
   }
 
   static fromJSON(data: ModificationsJSON): MaterialModifications {
@@ -544,7 +541,6 @@ interface MaterialUsagesJSON {
 export class MaterialUsages extends Array<string> {
   constructor(...vals: string[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(MaterialUsages.prototype));
   }
 
   static fromJSON(data: MaterialUsagesJSON): MaterialUsages {

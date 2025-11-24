@@ -17,6 +17,7 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {Accessor} from "models/base/accessor";
+import {applyMixinsByPrototype} from "models/mixins/mixins";
 import {PropertyErrors, PropertyJSON} from "models/shared/configuration";
 import {EncryptedValue} from "../forms/encrypted_value";
 
@@ -116,7 +117,7 @@ export class EntryVM {
       return !!namespace ? key().replace(ns, "") : key();
     };
 
-    ErrorsMixin.call(this, this);
+    this.initStore(this);
   }
 
   valueAlreadyEncrypted(): boolean {
@@ -225,10 +226,15 @@ function plain(val: string) {
 
 class ErrorsMixin {
   errors?: PropertyErrors;
-  nameErrors: () => (string|undefined);
-  valueErrors: () => (string|undefined);
 
   constructor(vm: NamespacedStore) {
+    this.initStore(vm);
+  }
+
+  nameErrors: () => (string|undefined) = () => undefined;
+  valueErrors: () => (string|undefined) = () => undefined;
+
+  initStore(vm: NamespacedStore) {
     // Removes the namespace from the key in error messages.
     // Only replaces the first occurence per message, which might (?) be the
     // safest thing to do. That is merely a heuristic which may later change.
@@ -262,6 +268,8 @@ class ErrorsMixin {
     };
   }
 }
+
+applyMixinsByPrototype(EntryVM, ErrorsMixin);
 
 // tslint:disable-next-line no-empty-interface
 export interface EntryVM extends ErrorsMixin {}

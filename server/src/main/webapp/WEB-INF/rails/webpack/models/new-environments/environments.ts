@@ -169,7 +169,6 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
 export class Environments extends Array<EnvironmentWithOrigin> {
   constructor(...environments: EnvironmentWithOrigin[]) {
     super(...environments);
-    Object.setPrototypeOf(this, Object.create(Environments.prototype));
   }
 
   static fromJSON(data: EnvironmentsJSON) {

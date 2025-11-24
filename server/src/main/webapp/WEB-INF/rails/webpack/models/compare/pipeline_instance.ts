@@ -55,7 +55,6 @@ export class PipelineHistory {
 export class PipelineInstances extends Array<PipelineInstance> {
   constructor(...pipelineInstances: PipelineInstance[]) {
     super(...pipelineInstances);
-    Object.setPrototypeOf(this, Object.create(PipelineInstances.prototype));
   }
 
   static fromJSON(data: PipelineInstanceJSON[]): PipelineInstances {
@@ -143,7 +142,6 @@ export class MaterialRevision {
 export class MaterialRevisions extends Array<MaterialRevision> {
   constructor(...revisions: MaterialRevision[]) {
     super(...revisions);
-    Object.setPrototypeOf(this, Object.create(MaterialRevisions.prototype));
   }
 
   static fromJSON(data: MaterialRevisionJSON[]): MaterialRevisions {
@@ -221,7 +219,6 @@ class Modification {
 class Modifications extends Array<Modification> {
   constructor(...modifications: Modification[]) {
     super(...modifications);
-    Object.setPrototypeOf(this, Object.create(Modifications.prototype));
   }
 
   static fromJSON(modifications: ModificationJSON[]) {
@@ -265,7 +262,6 @@ export class Stages extends Array<Stage> {
 
   constructor(...stages: Stage[]) {
     super(...stages);
-    Object.setPrototypeOf(this, Object.create(Stages.prototype));
   }
 
   static fromJSON(data: StageJSON[]): Stages {
@@ -296,7 +292,6 @@ export class Job {
 export class Jobs extends Array<Job> {
   constructor(...jobs: Job[]) {
     super(...jobs);
-    Object.setPrototypeOf(this, Object.create(Jobs.prototype));
   }
 
   static fromJSON(data: JobJSON[]): Jobs {

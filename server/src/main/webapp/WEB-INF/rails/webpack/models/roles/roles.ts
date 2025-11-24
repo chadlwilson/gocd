@@ -109,7 +109,6 @@ export class Directive extends ValidatableMixin {
 export class Policy extends Array<Stream<Directive>> {
   constructor(...rules: Array<Stream<Directive>>) {
     super(...rules);
-    Object.setPrototypeOf(this, Object.create(Policy.prototype));
   }
 
   static fromJSON(directiveJSONS: DirectiveJSON[]): Policy {
@@ -263,7 +262,6 @@ export class Roles extends Array<GoCDRole | PluginRole> {
 
   constructor(...roles: Array<GoCDRole | PluginRole>) {
     super(...roles);
-    Object.setPrototypeOf(this, Object.create(Roles.prototype));
   }
 
   static fromJSON(data: RolesJSON) {

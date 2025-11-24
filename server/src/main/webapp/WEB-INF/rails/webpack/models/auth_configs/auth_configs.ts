@@ -81,7 +81,6 @@ export class AuthConfig extends ValidatableMixin {
 export class AuthConfigs extends Array<AuthConfig> {
   constructor(...authConfigs: AuthConfig[]) {
     super(...authConfigs);
-    Object.setPrototypeOf(this, Object.create(AuthConfigs.prototype));
   }
 
   static fromJSON(data: AuthConfigsJSON) {

@@ -15,7 +15,7 @@
  */
 
 import _ from "lodash";
-import {Accessor, basicAccessor, serialize, serializing} from "models/base/accessor";
+import {Accessor, basicAccessor} from "models/base/accessor";
 import {ErrorIndex, PropertyErrors} from "models/shared/configuration";
 import {Validatable, Validator, ValidatorOptions} from "./new_validatable_mixin";
 
@@ -61,28 +61,19 @@ export class ConfigurationProperties {
   readonly userProps = basicAccessor<PropertyLike[]>([]);
   readonly propertyErrors = basicAccessor<ErrorIndex[]>([]);
 
-  private readonly allowUserDef: boolean;
-
-  constructor(allowUserDef: boolean = false) {
-    this.allowUserDef = allowUserDef;
-    this.configuration = serializing(this.configuration, this);
-  }
-
   configuration(configs?: PropertyLike[]): PropertyLike[] {
     if (arguments.length) {
       this.knownProps([]);
       this.userProps([]);
 
       if (configs) {
-        if (this.allowUserDef) {
-          _.each(configs, (c) => { (c.key.startsWith(USER_NS_PREFIX) ? this.userProps() : this.knownProps()).push(c); });
-        } else {
-          this.knownProps([].slice.call(configs));
-        }
+        configs.forEach(c => {
+          (c.key.startsWith(USER_NS_PREFIX) ? this.userProps() : this.knownProps()).push(c);
+        });
       }
     }
 
-    return this.allowUserDef ? this.knownProps().concat(this.userProps()) : this.knownProps();
+    return this.knownProps().concat(this.userProps());
   }
 
   /**
@@ -118,19 +109,6 @@ export class ConfigurationProperties {
   protected findProperty(key: string) {
     return _.find(this.knownProps(), (p) => p.key === key);
   }
-}
-
-/** Merges property collections from right to left, returning a copy */
-export function mergeProps(left: PropertyLike[], right: PropertyLike[]) {
-  const existing = right.map((c) => c.key);
-  const more: PropertyLike[] = [];
-  for (const prop of left) {
-    if (existing.indexOf(prop.key) < 0) {
-      more.push(serialize(prop));
-    }
-  }
-
-  return right.concat(more);
 }
 
 function addError(v: ErrorIndex, key: keyof PropertyErrors, msg: string) {

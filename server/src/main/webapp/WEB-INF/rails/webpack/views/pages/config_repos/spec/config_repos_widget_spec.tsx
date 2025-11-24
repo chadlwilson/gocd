@@ -66,7 +66,8 @@ describe("ConfigReposWidget", () => {
       showEditModal,
       reparseRepo: reparseRepoPromise,
       // tslint:disable-next-line no-empty
-      on(t, fn) {}, off(t) {}, reset() {}, notify(t) {}
+      on(t, fn) {}, off(t) {}, reset() {}, notify(t) {},
+      initHandlers: (_) => { /* no-op */ },
     };
   }
 

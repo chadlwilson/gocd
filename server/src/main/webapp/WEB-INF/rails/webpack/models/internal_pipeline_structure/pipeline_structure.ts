@@ -141,7 +141,6 @@ export class Pipelines extends Array<PipelineWithOrigin> {
 
   constructor(...items: PipelineWithOrigin[]) {
     super(...items);
-    Object.setPrototypeOf(this, Object.create(Pipelines.prototype));
 
     this.forEach(ele => this.pipelinesAsMap.set(ele.name(), ele));
   }
@@ -214,7 +213,6 @@ export class PipelineGroup {
 export class PipelineGroups extends Array<PipelineGroup> {
   constructor(...pipelines: PipelineGroup[]) {
     super(...pipelines);
-    Object.setPrototypeOf(this, Object.create(PipelineGroups.prototype));
   }
 
   static fromJSON(data: PipelineGroupJSON[] = []) {
@@ -244,7 +242,6 @@ export class Job {
 export class Jobs extends Array<Job> {
   constructor(...items: Job[]) {
     super(...items);
-    Object.setPrototypeOf(this, Object.create(Jobs.prototype));
   }
 
   static fromJSON(jobs: JobJSON[] = []) {
@@ -273,7 +270,6 @@ export class Stage {
 export class Stages extends Array<Stage> {
   constructor(...items: Stage[]) {
     super(...items);
-    Object.setPrototypeOf(this, Object.create(Stages.prototype));
   }
 
   static fromJSON(stages: StageJSON[] = []) {
@@ -300,7 +296,6 @@ export class Template {
 export class Templates extends Array<Template> {
   constructor(...items: Template[]) {
     super(...items);
-    Object.setPrototypeOf(this, Object.create(Templates.prototype));
   }
 
   static fromJSON(templates: TemplateJSON[] = []) {

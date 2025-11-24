@@ -124,7 +124,6 @@ export class PluginInfos extends Array<PluginInfo> {
 
   constructor(...pluginInfos: PluginInfo[]) {
     super(...pluginInfos);
-    Object.setPrototypeOf(this, Object.create(PluginInfos.prototype));
   }
 
   static fromJSON(json: PluginInfosJSON) {

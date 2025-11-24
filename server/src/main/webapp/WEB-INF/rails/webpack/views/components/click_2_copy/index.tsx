@@ -18,6 +18,7 @@ import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {asPromise} from "models/base/accessor";
 import {EventAware} from "models/mixins/event_aware";
+import {applyMixinsByPrototype} from "models/mixins/mixins";
 import {asSelector} from "../../../helpers/css_proxies";
 import * as defaultStyles from "./index.scss";
 
@@ -59,8 +60,7 @@ export class Click2Copy extends RestyleViewComponent<Styles, ClickAttrs> {
 
   constructor() {
     super();
-    Object.assign(Click2Copy.prototype, EventAware.prototype);
-    EventAware.call(this);
+    this.initHandlers();
   }
 
   oninit(vnode: m.Vnode<ClickAttrs>) {
@@ -188,6 +188,8 @@ export class Click2Copy extends RestyleViewComponent<Styles, ClickAttrs> {
     this.timers.forEach((t, n) => (clearTimeout(t), this.timers.delete(n)));
   }
 }
+
+applyMixinsByPrototype(Click2Copy, EventAware);
 
 interface Attrs extends Pick<ClickAttrs, "icon" | "copier" | "oncopy">{
   reader: () => string;

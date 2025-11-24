@@ -59,7 +59,6 @@ export class StageConfig {
 export class StageConfigs extends Array<StageConfig> {
   constructor(...stageConfigs: StageConfig[]) {
     super(...stageConfigs);
-    Object.setPrototypeOf(this, Object.create(StageConfigs.prototype));
   }
 
   static fromJSON(stages: StageConfigJSON[]) {
@@ -110,7 +109,6 @@ export class Modification {
 class Modifications extends Array<Modification> {
   constructor(...modifications: Modification[]) {
     super(...modifications);
-    Object.setPrototypeOf(this, Object.create(Modifications.prototype));
   }
 
   static fromJSON(modifications: ModificationJSON[]) {
@@ -169,7 +167,6 @@ export class MaterialRevision {
 class MaterialRevisions extends Array<MaterialRevision> {
   constructor(...materialRevisions: MaterialRevision[]) {
     super(...materialRevisions);
-    Object.setPrototypeOf(this, Object.create(MaterialRevisions.prototype));
   }
 
   static fromJSON(materialRevisions: MaterialRevisionJSON[]) {
@@ -240,7 +237,6 @@ export class Stage {
 export class Stages extends Array<Stage> {
   constructor(...stages: Stage[]) {
     super(...stages);
-    Object.setPrototypeOf(this, Object.create(Stages.prototype));
   }
 
   static fromJSON(stages: StageJSON[]) {
@@ -296,7 +292,6 @@ export class PipelineRunInfo {
 class PipelineHistory extends Array<PipelineRunInfo> {
   constructor(...pipelineRunInfos: PipelineRunInfo[]) {
     super(...pipelineRunInfos);
-    Object.setPrototypeOf(this, Object.create(PipelineHistory.prototype));
   }
 
   static fromJSON(history: HistoryJSON[]) {
@@ -322,7 +317,6 @@ export class Group {
 class Groups extends Array<Group> {
   constructor(...groups: Group[]) {
     super(...groups);
-    Object.setPrototypeOf(this, Object.create(Groups.prototype));
   }
 
   static fromJSON(groups: GroupJSON[]) {

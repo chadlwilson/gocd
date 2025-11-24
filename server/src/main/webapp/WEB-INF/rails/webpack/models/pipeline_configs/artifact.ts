@@ -40,7 +40,6 @@ export interface ArtifactJSON {
 export class Artifacts extends Array<Artifact> {
   constructor(...artifacts: Artifact[]) {
     super(...artifacts);
-    Object.setPrototypeOf(this, Object.create(Artifacts.prototype));
   }
 
   static fromJSON(json: ArtifactJSON[]) {

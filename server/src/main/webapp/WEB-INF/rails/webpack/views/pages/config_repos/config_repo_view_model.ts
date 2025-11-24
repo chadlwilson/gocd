@@ -22,6 +22,7 @@ import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
 import {EventAware} from "models/mixins/event_aware";
+import {applyMixinsByPrototype} from "models/mixins/mixins";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EditConfigRepoModal} from "views/pages/config_repos/modals";
 import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
@@ -84,8 +85,7 @@ export class ConfigRepoVM {
   constructor(repo: ConfigRepo, page: PageResources, results?: ObjectCache<DefinedStructures>) {
     const cache = results || new CRResultCache(repo.id());
 
-    Object.assign(ConfigRepoVM.prototype, EventAware.prototype);
-    EventAware.call(this);
+    this.initHandlers();
 
     this.repo = repo;
     this.results = cache;
@@ -137,6 +137,8 @@ export class ConfigRepoVM {
     };
   }
 }
+
+applyMixinsByPrototype(ConfigRepoVM, EventAware);
 
 // tslint:disable-next-line
 export interface ConfigRepoVM extends EventAware {}

@@ -112,7 +112,6 @@ export class User {
 export class Users extends Array<User> {
   constructor(...users: User[]) {
     super(...users);
-    Object.setPrototypeOf(this, Object.create(Users.prototype));
   }
 
   static fromJSON(json: UsersJSON) {

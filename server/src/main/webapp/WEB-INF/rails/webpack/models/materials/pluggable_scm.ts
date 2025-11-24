@@ -120,7 +120,6 @@ export class Scm extends ValidatableMixin {
 export class Scms extends Array<Scm> {
   constructor(...vals: Scm[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(Scms.prototype));
   }
 
   static fromJSON(data: ScmJSON[]): Scms {
@@ -145,7 +144,6 @@ class ScmUsage {
 export class ScmUsages extends Array<ScmUsage> {
   constructor(...vals: ScmUsage[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(ScmUsages.prototype));
   }
 
   static fromJSON(data: ScmUsagesJSON): ScmUsages {

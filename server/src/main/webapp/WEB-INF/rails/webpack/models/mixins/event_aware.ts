@@ -26,10 +26,14 @@ export interface EventAware {
 
 /** Provides message-passing capabilities to instances. Use as a mixin or base class. */
 export class EventAware {
+  constructor() {
+    this.initHandlers();
+  }
+
   // Forming a closure here means there's never a need to `Function.bind()` for
   // `on()`, `notify()`, etc. It also means the internal event map will never get
   // serialized and is truly private.
-  constructor(handlers: Map<string, fn[]> = new Map()) {
+  initHandlers(handlers: Map<string, fn[]> = new Map()) {
     this.on = (type: string, fn: fn) => {
       if ("function" !== typeof fn) { throw new Error("Not registering a non-function"); }
 

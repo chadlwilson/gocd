@@ -36,7 +36,6 @@ class AutoSuggestion {
 export class AutoSuggestions extends Array<AutoSuggestion> {
   constructor(...vals: AutoSuggestion[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(AutoSuggestions.prototype));
   }
 
   static fromJSON(data: AutoSuggestionJSON[]): AutoSuggestions {

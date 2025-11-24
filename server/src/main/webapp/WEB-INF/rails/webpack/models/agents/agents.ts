@@ -197,7 +197,6 @@ export class Agent {
 export class Agents extends Array<Agent> {
   constructor(...agents: Agent[]) {
     super(...agents);
-    Object.setPrototypeOf(this, Object.create(Agents.prototype));
   }
 
   static fromJSON(data: AgentsJSON): Agents {

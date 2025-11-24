@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {applyMixins} from "models/mixins/mixins";
+import {applyMixinsByInstance} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Origin, OriginJSON, OriginType} from "models/origin";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
@@ -98,8 +98,6 @@ export interface EnvironmentVariables extends ValidatableMixin {
 export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVariable> extends Array<T> implements ValidatableMixin {
   constructor(...environmentVariables: T[]) {
     super(...environmentVariables);
-    Object.setPrototypeOf(this, Object.create(EnvironmentVariables.prototype));
-    ValidatableMixin.call(this);
   }
 
   static fromJSON(environmentVariables: EnvironmentVariableJSON[]) {
@@ -123,7 +121,7 @@ export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVar
   }
 }
 
-applyMixins(EnvironmentVariables, ValidatableMixin);
+applyMixinsByInstance(EnvironmentVariables, ValidatableMixin);
 
 export interface EnvironmentEnvironmentVariableJSON extends EnvironmentVariableJSON {
   origin: OriginJSON;

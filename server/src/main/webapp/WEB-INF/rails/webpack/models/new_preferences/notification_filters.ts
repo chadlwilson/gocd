@@ -94,7 +94,6 @@ export class NotificationFilter extends ValidatableMixin {
 export class NotificationFilters extends Array<NotificationFilter> {
   constructor(...vals: NotificationFilter[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(NotificationFilters.prototype));
   }
 
   static fromJSON(data: NotificationFilterJSON[]): NotificationFilters {

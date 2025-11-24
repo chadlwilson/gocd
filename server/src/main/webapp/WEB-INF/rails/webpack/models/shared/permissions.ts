@@ -60,7 +60,6 @@ export class Permissions extends Array<Permission> {
 
   constructor(permissions: Permission[]) {
     super(...permissions);
-    Object.setPrototypeOf(this, Object.create(Permissions.prototype));
   }
 
   static all(type?: SupportedEntity[]) {

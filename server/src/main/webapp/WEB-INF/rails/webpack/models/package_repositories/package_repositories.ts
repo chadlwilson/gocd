@@ -107,7 +107,6 @@ export class Package extends ValidatableMixin {
 export class Packages extends Array<Package> {
   constructor(...pkg: Package[]) {
     super(...pkg);
-    Object.setPrototypeOf(this, Object.create(Packages.prototype));
   }
 
   static fromJSON(data: PackageJSON[]): Packages {
@@ -200,7 +199,6 @@ export class PackageRepository extends ValidatableMixin {
 export class PackageRepositories extends Array<PackageRepository> {
   constructor(...pkgRepo: PackageRepository[]) {
     super(...pkgRepo);
-    Object.setPrototypeOf(this, Object.create(PackageRepositories.prototype));
   }
 
   static fromJSON(data: PackageRepositoryJSON[]): PackageRepositories {
@@ -225,7 +223,6 @@ class PackageUsage {
 export class PackageUsages extends Array<PackageUsage> {
   constructor(...vals: PackageUsage[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(PackageUsages.prototype));
   }
 
   static fromJSON(data: PackageUsagesJSON): PackageUsages {

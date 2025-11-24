@@ -57,7 +57,6 @@ export class Rule extends ValidatableMixin {
 export class Rules extends Array<Stream<Rule>> {
   constructor(...rules: Array<Stream<Rule>>) {
     super(...rules);
-    Object.setPrototypeOf(this, Object.create(Rules.prototype));
   }
 
   static fromJSON(rulesJSON: RuleJSON[]) {

@@ -24,7 +24,7 @@ export interface SerializableAccessor<T> extends Accessor<T> {
 
 /** Higher order function to convert an {@link Accessor} into a {@link SerializableAccessor} by ensuring a `toJSON()` */
 export function serializing<T>(fn: Accessor<T>, thisArg?: any): SerializableAccessor<T> {
-  const f = ((arguments.length > 1) ? fn.bind(thisArg) : fn) as any;
+  const f = (thisArg !== undefined ? (...args: [val?: T | undefined]) => fn.apply(thisArg, args) : fn) as any;
   if ("function" !== typeof f.toJSON) {
     f.toJSON = () => f();
   }

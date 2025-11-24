@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export function applyMixins(target: any, ...mixins: any) {
+export function applyMixinsByPrototype(target: any, ...mixins: any) {
   mixins.forEach((mixin: any) => {
     Object.getOwnPropertyNames(mixin.prototype).forEach((name) => {
       target.prototype[name] = mixin.prototype[name];
     });
+  });
+}
+
+export function applyMixinsByInstance(target: any, ...mixins: any) {
+  applyMixinsByPrototype(target, ...mixins);
+  mixins.forEach((mixin: any) => {
+    Object.assign(target.prototype, new mixin());
   });
 }

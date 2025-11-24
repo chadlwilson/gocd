@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {Accessor} from "models/base/accessor";
+import {Accessor, serializing} from "models/base/accessor";
 import {
   ConfigRepoJSON,
   ConfigReposJSON,
@@ -26,7 +26,7 @@ import {
 import {Material, Materials} from "models/materials/types";
 import {ConfigurationProperties, PropertyLike, PropertyNamesValidator} from "models/mixins/configuration_properties";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
+import {applyMixinsByInstance} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/rules/rules";
 import {Configuration} from "models/shared/configuration";
@@ -72,8 +72,6 @@ export class ConfigRepo extends ValidatableMixin implements ConfigurationPropert
     this.lastParse                = Stream(lastParse);
     this.materialUpdateInProgress = Stream(materialUpdateInProgress || false);
     this.rules                    = Stream(rules || []);
-
-    ConfigurationProperties.call(this, true);
 
     if (configuration) {
       this.configuration(configuration);
@@ -130,7 +128,8 @@ export class ConfigRepo extends ValidatableMixin implements ConfigurationPropert
   }
 }
 
-applyMixins(ConfigRepo, ConfigurationProperties);
+applyMixinsByInstance(ConfigRepo, ConfigurationProperties);
+ConfigurationProperties.prototype.configuration = serializing(ConfigurationProperties.prototype.configuration);
 
 export class ConfigRepos {
   configRepos: ConfigRepo[];

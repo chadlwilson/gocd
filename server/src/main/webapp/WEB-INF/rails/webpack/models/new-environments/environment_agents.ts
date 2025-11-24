@@ -46,7 +46,6 @@ export class AgentWithOrigin {
 export class Agents extends Array<AgentWithOrigin> {
   constructor(...agents: AgentWithOrigin[]) {
     super(...agents);
-    Object.setPrototypeOf(this, Object.create(Agents.prototype));
   }
 
   static fromJSON(agents: EnvironmentAgentJSON[]) {

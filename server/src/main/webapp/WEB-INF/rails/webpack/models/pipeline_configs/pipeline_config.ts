@@ -277,7 +277,6 @@ export class PipelineConfig extends ValidatableMixin {
 export class Materials extends Array<Material> {
   constructor(...vals: Material[]) {
     super(...vals);
-    Object.setPrototypeOf(this, Object.create(Materials.prototype));
   }
 
   static fromJSON(material: MaterialJSON): Material {
