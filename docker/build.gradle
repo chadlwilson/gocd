@@ -20,10 +20,6 @@ plugins {
   id 'base'
 }
 
-subprojects {
-  apply plugin: 'base'
-}
-
 static def useRegistryMirror() {
   System.env.DOCKERHUB_MIRROR_USERNAME && System.env.DOCKERHUB_MIRROR_PASSWORD
 }

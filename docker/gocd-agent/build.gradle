@@ -34,28 +34,18 @@ plugins {
   id 'base'
 }
 
-subprojects {
-  apply plugin: 'base'
-  layout.buildDirectory = parent.layout.buildDirectory.dir(project.name).get()
+def dockerTasks = Distro.values()
+  .collectMany {distro -> distro.supportedVersions.collect { v -> [distro, v] as Tuple2<Distro, DistroVersion> } }
+  .collect { target ->
 
-  // detect the distro name and version from the project name.
-  // For e.g. `ubuntu-20.04` will map to `Distro.ubuntu` and version `20.04` as returned by `Distro.ubuntu.supportedVersions`
-  def distroName = project.name.split('-').first()
-  Distro distro = Distro.valueOf(distroName)
+  def (distro, distroVersion) = target
 
-  if (!project.name.startsWith("${distro.name()}-")) {
-    throw new GradleException("Did you initialize the project ${project.path} with the wrong distro(${distro.name()})?".toString())
-  }
-
-  def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
-  DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
-
-  def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
+  tasks.register("docker-${distro.taskSuffix(distroVersion)}", BuildDockerImageTask.class) { BuildDockerImageTask task ->
     task.configureFor(ImageType.agent)
     task.distro = distro
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
-    task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
+    task.outputDir = layout.buildDirectory.dir("docker")
 
     def licenseSourceFile = rootProject.file("LICENSE")
 
@@ -99,7 +89,7 @@ subprojects {
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStreamOverride ->
         execOps.exec {
-          commandLine = ["docker", "rm", "--force", "--volumes", docker.dockerImageName]
+          commandLine = ["docker", "rm", "--force", "--volumes", task.dockerImageName]
           standardOutput = OutputStream.nullOutputStream()
           if (errorStreamOverride) errorOutput = errorStreamOverride
         }
@@ -110,7 +100,7 @@ subprojects {
       // daemonize the container
       execOps.exec {
         def additionalFlags = distro == Distro.docker ? ["--privileged"] : []
-        commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName] + additionalFlags + [docker.imageNameWithTag] as List<String>
+        commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", task.dockerImageName] + additionalFlags + [task.imageNameWithTag] as List<String>
       }
 
       def start = System.currentTimeMillis()
@@ -126,22 +116,20 @@ subprojects {
 
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
-            commandLine = ["docker", "exec", docker.dockerImageName] + command
+            commandLine = ["docker", "exec", task.dockerImageName] + command
             errorOutput = standardOutput // Docker is noisy on STDERR when pulling images via these exec commands
           }
         }
       } finally {
-        logger.lifecycle("Took ${System.currentTimeMillis() - start} ms to verify [${docker.dockerImageName}] container started.")
+        logger.lifecycle("Took ${System.currentTimeMillis() - start} ms to verify [${task.dockerImageName}] container started.")
         // remove the container
         cleanContainer.call()
       }
     }
   }
-  assemble.dependsOn(docker)
 }
 
 tasks.register('generateManifest') {
-  def dockerTasks = subprojects.tasks*.named('docker') as Collection<TaskProvider<? extends BuildDockerImageTask>>
   def manifest = layout.buildDirectory.file("docker/manifest.json")
   outputs.file(manifest)
 
@@ -165,5 +153,7 @@ tasks.register('generateManifest') {
   }
 }
 
-assemble.dependsOn(subprojects.tasks*.named('assemble'))
-assemble.dependsOn(generateManifest)
+assemble {
+  dependsOn(dockerTasks)
+  dependsOn(generateManifest)
+}

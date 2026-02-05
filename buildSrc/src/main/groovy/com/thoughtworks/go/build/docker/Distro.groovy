@@ -298,7 +298,7 @@ enum Distro implements DistroBehavior {
     Date.parse("yyyy-MM-dd", date)
   }
 
-  GString projectName(DistroVersion v) {
+  GString taskSuffix(DistroVersion v) {
     "${name()}-${v.version}"
   }
 }

@@ -29,10 +29,7 @@ import org.gradle.api.file.*
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.process.ExecOperations
 
@@ -79,7 +76,8 @@ abstract class BuildDockerImageTask extends DefaultTask {
   @Inject abstract ExecOperations getExecOps()
   @Inject abstract FileSystemOperations getFileOps()
 
-  private final Provider<Directory> buildDirectory = project.layout.buildDirectory
+  @Internal Provider<String> gitHubRepoName = project.provider { "docker-${dockerImageName}".toString() }
+  @OutputDirectory Provider<Directory> gitRepoDirectory = project.layout.buildDirectory.dir(this.gitHubRepoName)
 
   private final boolean skipBuild = project.hasProperty('skipDockerBuild')
   private final boolean skipNonNativeVerify = project.hasProperty('dockerBuildSkipNonNativeVerify')
@@ -136,7 +134,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     def credentials = "${System.getenv("GIT_USER")}:${System.getenv("GIT_PASSWORD")}"
     execOps.exec {
       workingDir = this.gitRepoDirectory.get().asFile.parentFile
-      commandLine = ["git", "clone", "--depth=1", "--quiet", "https://${credentials}@github.com/gocd/${gitHubRepoName}", this.gitRepoDirectory.get().asFile]
+      commandLine = ["git", "clone", "--depth=1", "--quiet", "https://${credentials}@github.com/gocd/${this.gitHubRepoName.get()}", this.gitRepoDirectory.get().asFile]
     }
 
     if (templateHelper != null) {
@@ -194,7 +192,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     fileOps.delete { it.delete(this.gitRepoDirectory.map { it.file(artifactZip.get().asFile.name) }) }
 
     if (gitPush == 'I_REALLY_WANT_TO_DO_THIS') {
-      logger.lifecycle("Pushing changed Dockerfile for ${imageNameWithTag} to ${gitHubRepoName}...")
+      logger.lifecycle("Pushing changed Dockerfile for ${imageNameWithTag} to ${gitHubRepoName.get()}...")
       executeInGitRepo("git", "add", ".")
 
       if (execOps.exec {
@@ -206,9 +204,9 @@ abstract class BuildDockerImageTask extends DefaultTask {
         executeInGitRepo("git", "tag", "v${goVersions.goVersion}")
         executeInGitRepo("git", "push")
         executeInGitRepo("git", "push", "--tags")
-        logger.lifecycle("Updated Dockerfile for for ${imageNameWithTag} at ${gitHubRepoName}.")
+        logger.lifecycle("Updated Dockerfile for for ${imageNameWithTag} at ${gitHubRepoName.get()}.")
       } else {
-        logger.lifecycle("No changes to Docker build for ${imageNameWithTag} at ${gitHubRepoName}.")
+        logger.lifecycle("No changes to Docker build for ${imageNameWithTag} at ${gitHubRepoName.get()}.")
       }
     }
   }
@@ -266,7 +264,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     "v${goVersions.fullVersion}"
   }
 
-  @Internal
+  @OutputFile
   File getImageTarFile() {
     outputDir.get().file("gocd-${imageType.get().name()}-${dockerImageName}-v${goVersions.fullVersion}.tar").asFile
   }
@@ -297,22 +295,12 @@ abstract class BuildDockerImageTask extends DefaultTask {
     }
   }
 
-  @Internal
-  Provider<Directory> getGitRepoDirectory() {
-    buildDirectory.dir(gitHubRepoName)
-  }
-
   void deleteGitRepoDirectoryContents() {
     fileOps.delete { it.delete(gitRepoDirectory.map { it.asFileTree }) }
   }
 
   File resolveGitRepoFileFor(String fileName) {
     gitRepoDirectory.map { it.file(fileName) }.get().asFile
-  }
-
-  @Internal
-  String getGitHubRepoName() {
-    return "docker-${dockerImageName}"
   }
 
   @Internal

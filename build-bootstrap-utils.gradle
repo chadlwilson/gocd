@@ -648,7 +648,6 @@ private Object addProjectToSettingsGradle(String newProjectName, it) {
     def newProjects = existingProjects + [":api:${newProjectName}"]
     newProjects.sort().unique().each { out.println "include '${it}'" }
     out.println("")
-    out.println("apply from: 'settings-docker.gradle'")
   }
 }
 
